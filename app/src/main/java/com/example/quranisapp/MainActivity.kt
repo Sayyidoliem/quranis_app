@@ -196,7 +196,7 @@ fun MainActivity() {
                                 }
                                 HomeScreens(
                                     goToPrayTime = {  },
-                                    countryLocation = "location ${locationList!![0]!!.countryName}",
+                                    countryLocation = "lokasi ${locationList!![0]!!.countryName}",
                                     provinceLocation = ""
                                 )
                             }
