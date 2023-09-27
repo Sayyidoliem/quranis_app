@@ -57,7 +57,7 @@ fun PrayerScreens(
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp)
+                        .padding(12.dp)
                         .clip(RoundedCornerShape(10)),
                     colors = CardDefaults.cardColors(
                         containerColor = colorResource(id = R.color.white)
