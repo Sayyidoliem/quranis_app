@@ -1,10 +1,6 @@
 package com.example.quranisapp
 
-import android.Manifest
 import android.annotation.SuppressLint
-import android.location.Geocoder
-import android.location.Location
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,7 +9,6 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -23,14 +18,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -47,15 +38,9 @@ import com.example.quranisapp.bottomscreens.HomeScreens
 import com.example.quranisapp.bottomscreens.ProfileScreens
 import com.example.quranisapp.bottomscreens.SettingScreens
 import com.example.quranisapp.navigation.Screen
-import com.example.quranisapp.service.location.LocationService
-import com.example.quranisapp.service.location.LocationServiceCondition
 import com.example.quranisapp.tabrowscreens.AyatScreens
 import com.example.quranisapp.ui.theme.QURANISAppTheme
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.PermissionsRequired
-import com.google.accompanist.permissions.rememberMultiplePermissionsState
-import com.google.android.gms.location.LocationServices
-import kotlinx.coroutines.flow.MutableStateFlow
 
 @SuppressLint("SuspiciousIndentation")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
@@ -72,32 +57,6 @@ fun MainActivity() {
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             var currentRoute: String? = navBackStackEntry?.destination?.route
 
-            val context = LocalContext.current
-
-            val geoCoder = Geocoder(context)
-            val locationCLient = LocationServices.getFusedLocationProviderClient(context)
-            val locationState = MutableStateFlow<LocationServiceCondition<Location?>?>(null)
-            val locationService = LocationService(
-                locationCLient, context.applicationContext
-            )
-
-            val locationPermission = rememberMultiplePermissionsState(
-                permissions = listOf(
-                    //buat manifest pastiin yg android
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                )
-            )
-
-            if (!locationPermission.allPermissionsGranted) {
-                LaunchedEffect(key1 = true) {
-                    locationPermission.launchMultiplePermissionRequest()
-                }
-            }
-
-            LaunchedEffect(key1 = locationPermission.allPermissionsGranted) {
-                locationState.emit(locationService.getCurrentLocation())
-            }
 
             Scaffold(
                 modifier = Modifier,
@@ -141,76 +100,6 @@ fun MainActivity() {
                         }
                 }
             ) { innerPadding ->
-                PermissionsRequired(
-                    multiplePermissionsState = locationPermission,
-                    permissionsNotGrantedContent = {
-                        HomeScreens(
-                            goToPrayTime = {},
-                            countryLocation = "",
-                            provinceLocation = ""
-                        )
-                    },
-                    permissionsNotAvailableContent = {
-                        HomeScreens(
-                            goToPrayTime = {},
-                            countryLocation = "",
-                            provinceLocation = ""
-                        )
-                    },
-                ) {//ketika permision dipenuhi
-                    locationState.collectAsState().let { state ->
-                        when (val locationCondition = state.value) {
-                            is LocationServiceCondition.Error -> {
-                                HomeScreens(
-                                    goToPrayTime = {},
-                                    countryLocation = "error",
-                                    provinceLocation = "error"
-                                )
-                            }
-
-                            is LocationServiceCondition.MissingPermission -> {
-                                HomeScreens(
-                                    goToPrayTime = {},
-                                    countryLocation = "error",
-                                    provinceLocation = "error"
-                                )
-                            }
-
-                            is LocationServiceCondition.NoGps -> {
-                                HomeScreens(
-                                    goToPrayTime = {},
-                                    countryLocation = "GPS not found",
-                                    provinceLocation = "GPS not found"
-                                )
-                            }
-
-                            is LocationServiceCondition.Success -> {
-                                val location = locationCondition.location
-
-                                val locationList = location?.let {
-                                    geoCoder.getFromLocation(
-                                        it.latitude,
-                                        it.longitude,
-                                        1
-                                    )
-                                }
-                                HomeScreens(
-                                    goToPrayTime = {  },
-                                    countryLocation = "lokasi ${locationList!![0]!!.countryName}",
-                                    provinceLocation = ""
-                                )
-                            }
-                            null -> {
-                                Box(
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    CircularProgressIndicator()
-                                }
-                            }
-                        }
-                    }
-                }
                 NavHost(
                     modifier = Modifier.padding(innerPadding),
                     navController = navController,
@@ -218,12 +107,10 @@ fun MainActivity() {
                 ) {
                     composable("home") {
                         HomeScreens(
-                            goToPrayTime = { navController.navigate("time") },
-                            countryLocation = "",
-                            provinceLocation = "",
+                            goToPrayer = {navController.navigate("prayer")},
                         )
                     }
-                    composable("time") {
+                    composable("prayer") {
                         PrayerScreens(back = { navController.navigateUp() })
                     }
                     composable(Screen.Read.route) {
