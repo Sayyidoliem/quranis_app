@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -30,7 +31,6 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -54,6 +54,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -77,6 +78,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.quranisapp.R
+import com.example.quranisapp.service.ApiInterface
+import com.example.quranisapp.service.api.Time
 import com.example.quranisapp.service.location.LocationService
 import com.example.quranisapp.service.location.LocationServiceCondition
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -96,7 +99,7 @@ fun HomeScreens(
 
     val geoCoder = Geocoder(context)
     val locationCLient = LocationServices.getFusedLocationProviderClient(context)
-    val locationState = MutableStateFlow<LocationServiceCondition<Location?>?>(null)
+    val locationState = remember { MutableStateFlow<LocationServiceCondition<Location?>?>(null) }
     val locationService = LocationService(
         locationCLient, context.applicationContext
     )
@@ -138,6 +141,15 @@ fun HomeScreens(
 
     val scrollBehavior =
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+
+
+    val api = ApiInterface.createApi()
+    val prayerTime = remember {
+        mutableStateListOf<Time?>()
+    }
+
+    var cityLocation by remember { mutableStateOf("") }
+    var provinceLocation by remember { mutableStateOf("") }
 
     ModalNavigationDrawer(
         drawerState = navDrawerState,
@@ -296,44 +308,38 @@ fun HomeScreens(
                     multiplePermissionsState = locationPermission,
                     permissionsNotGrantedContent = {
                         //ketika permission ditolak
-                        CardNextPrayerNotPermission(
-                            nav = goToPrayer,
-                            location = "Location is reject"
-                        )
+                        cityLocation = "Location is Rejected"
                     },
                     permissionsNotAvailableContent = {
                         //ketika permisioan ditolak dan
-                        CardNextPrayerNotPermission(
-                            nav = goToPrayer,
-                            location = "Location is rejected"
-                        )
+                        cityLocation = "Location is Rejected"
                     },
-                ){
-                    locationState.collectAsState().let {state->
+                ) {
+                    locationState.collectAsState().let { state ->
                         when (val locationCondition = state.value) {
                             is LocationServiceCondition.Error -> {
-                                CardNextPrayerNotPermission(
-                                    nav = goToPrayer,
-                                    location = "Location Error"
-                                )
+                                cityLocation = "Location error"
                             }
 
                             is LocationServiceCondition.MissingPermission -> {
-                                CardNextPrayerNotPermission(
-                                    nav = goToPrayer,
-                                    location = "Missing location"
-                                )
+                                cityLocation = "Missing location"
                             }
 
                             is LocationServiceCondition.NoGps -> {
-                                CardNextPrayerNotPermission(
-                                    nav = goToPrayer,
-                                    location = "Gps not activated"
-                                )
+                                cityLocation = "Gps Not Activated"
                             }
 
                             is LocationServiceCondition.Success -> {
                                 val location = locationCondition.location
+
+                                scope.launch {
+                                    val result = api.getJadwalSholat(
+                                        location?.latitude.toString(),
+                                        location?.longitude.toString()
+                                    )
+                                    prayerTime.clear()
+                                    prayerTime.addAll(result.times)
+                                }
 
                                 val locationList = location?.let {
                                     geoCoder.getFromLocation(
@@ -342,22 +348,63 @@ fun HomeScreens(
                                         1
                                     )
                                 }
-                                CardNextPrayer(
-                                    nav = goToPrayer,
-                                    location = locationList?.get(0)?.countryName
-                                )
+                                cityLocation = locationList?.get(0)?.locality ?: ""
+                                provinceLocation = locationList?.get(0)?.subAdminArea ?: ""
                             }
 
                             null -> {
-                                Box(
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    CircularProgressIndicator()
-                                }
+                                cityLocation = "Location error"
                             }
                         }
+                    }
+                }
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .clip(RoundedCornerShape(10))
+                        .clickable { goToPrayer() },
+                    elevation = CardDefaults.cardElevation(
+                        defaultElevation = 16.dp
+                    ),
+                    colors = CardDefaults.cardColors(
+                        containerColor = colorResource(id = R.color.white)
+                    )
+                ) {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Column(
+                                modifier = Modifier
+                                    .padding(vertical = 30.dp)
+                                    .padding(start = 20.dp)
+                            ) {
+                                Text(text = "Next Prayer", fontSize = 20.sp)
+                                Text(
+                                    text = "11.30",
+                                    fontSize = 32.sp,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = colorResource(id = R.color.blue)
+                                )
+                                if (prayerTime.isNotEmpty()) {
+                                    Spacer(modifier = Modifier.size(20.dp))
+                                    Text(text = "${prayerTime[0]?.gregorian}", fontSize = 20.sp)
+                                    Spacer(modifier = Modifier.size(20.dp))
+                                    Text(
+                                        modifier = Modifier.width(160.dp),
+                                        text = "$cityLocation, $provinceLocation",
+                                        fontSize = 20.sp
+                                    )
+                                }
 
+                            }
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_launcher_background),
+                                contentDescription = "",
+                                Modifier
+                                    .weight(9f / 16f, fill = false)
+                                    .fillMaxWidth()
+                            )
+                        }
                     }
                 }
             }
@@ -577,101 +624,3 @@ val navigationdrawerList: List<NavItem> = listOf(
     NavItem("search", "Search", Icons.Default.Search),
     NavItem("setting", "Settings", Icons.Default.Settings)
 )
-
-@Composable
-fun CardNextPrayer(
-    nav: () -> Unit,
-    location: String?
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .clip(RoundedCornerShape(10))
-            .clickable { nav() },
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 16.dp
-        ),
-        colors = CardDefaults.cardColors(
-            containerColor = colorResource(id = R.color.white)
-        )
-    ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Column(
-                    modifier = Modifier
-                        .padding(vertical = 30.dp)
-                        .padding(start = 20.dp)
-                ) {
-                    Text(text = "Next Prayer", fontSize = 20.sp)
-                    Text(
-                        text = "11.30",
-                        fontSize = 32.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = colorResource(id = R.color.blue)
-                    )
-                    Spacer(modifier = Modifier.size(20.dp))
-                    Text(text = "00.01.54", fontSize = 20.sp)
-                    Spacer(modifier = Modifier.size(20.dp))
-                    Text(text = "$location", fontSize = 20.sp)
-                }
-                Image(
-                    painter = painterResource(id = R.drawable.ic_launcher_background),
-                    contentDescription = "",
-                    Modifier
-                        .weight(9f / 16f, fill = false)
-                        .fillMaxWidth()
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun CardNextPrayerNotPermission(
-    nav: () -> Unit,
-    location: String
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .clip(RoundedCornerShape(10))
-            .clickable { nav() },
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 16.dp
-        ),
-        colors = CardDefaults.cardColors(
-            containerColor = colorResource(id = R.color.white)
-        )
-    ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Column(
-                    modifier = Modifier
-                        .padding(vertical = 30.dp)
-                        .padding(start = 20.dp)
-                ) {
-                    Text(text = "Next Prayer", fontSize = 20.sp)
-                    Text(
-                        text = "11.30",
-                        fontSize = 32.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = colorResource(id = R.color.blue)
-                    )
-                    Spacer(modifier = Modifier.size(20.dp))
-                    Text(text = "00.01.54", fontSize = 20.sp)
-                    Spacer(modifier = Modifier.size(20.dp))
-                    Text(text = location, fontSize = 20.sp)
-                }
-                Image(
-                    painter = painterResource(id = R.drawable.ic_launcher_background),
-                    contentDescription = "",
-                    Modifier
-                        .weight(9f / 16f, fill = false)
-                        .fillMaxWidth()
-                )
-            }
-        }
-    }
-}

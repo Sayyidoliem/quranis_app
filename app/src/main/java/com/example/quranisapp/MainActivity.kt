@@ -107,7 +107,7 @@ fun MainActivity() {
                 ) {
                     composable("home") {
                         HomeScreens(
-                            goToPrayer = {navController.navigate("prayer")},
+                            goToPrayer = { navController.navigate("prayer") },
                         )
                     }
                     composable("prayer") {

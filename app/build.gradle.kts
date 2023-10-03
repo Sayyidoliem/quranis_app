@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("kotlin-parcelize")
     //kts
     kotlin("kapt")
 }
@@ -89,4 +90,9 @@ dependencies {
     implementation("com.google.android.gms:play-services-location:21.0.1")
     //m3 material library
 //    implementation("androidx.compose.material3:material3:1.2.0-alpha08")
+
+    //retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    //converter gson
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 }

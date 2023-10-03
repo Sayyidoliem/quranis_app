@@ -9,12 +9,14 @@ import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 class LocationService(
     private val client: FusedLocationProviderClient,
     private val application: Context
 ) {
+    @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun getCurrentLocation(): LocationServiceCondition<Location?> {
 
         //buat pastiin dapet ijin dari aplikasi
