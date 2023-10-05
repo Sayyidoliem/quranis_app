@@ -344,7 +344,7 @@ fun AyatScreens(
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text(
                                 modifier = Modifier.fillMaxWidth(),
-                                text = "${it.ayatText}",
+                                text = Regex("\\d+\$").replace(it.ayatText!!,""),
                                 fontSize = 20.sp,
                                 textAlign = TextAlign.End,
                                 letterSpacing = 1.sp,
