@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = "com.example.quranisapp"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.example.quranisapp"
@@ -57,7 +57,7 @@ dependencies {
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
     implementation("androidx.activity:activity-compose:1.7.2")
-    implementation(platform("androidx.compose:compose-bom:2023.03.00"))
+    implementation(platform("androidx.compose:compose-bom:2023.09.01"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
@@ -95,4 +95,21 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     //converter gson
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+    //buat ngerender website di dalam android/aplikasi
+    implementation("com.github.Justson.AgentWeb:agentweb-core:v4.1.9-androidx")
+
+//    implementation("androidx.compose.foundation:foundation-android:1.5.3")
+
+    // core
+    implementation ("com.chibatching.kotpref:kotpref:2.13.1")
+
+    // optional, auto initialization module
+    implementation ("com.chibatching.kotpref:initializer:2.13.1")
+
+    // optional, support saving enum value and ordinal
+    implementation ("com.chibatching.kotpref:enum-support:2.13.1")
+
+    //media player
+    implementation ("com.github.jrfeng.snow:player:1.2")
 }

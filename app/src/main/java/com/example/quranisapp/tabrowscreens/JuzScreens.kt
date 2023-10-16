@@ -14,10 +14,10 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.ArrowForward
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -29,11 +29,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.quranisapp.R
 import com.example.quranisapp.data.database.QoranDatabase
 
 @Composable
@@ -61,7 +59,7 @@ fun JuzScreens(
                             goToRead.invoke(null, it.juzNumber, null)
                         },
                     colors = CardDefaults.cardColors(
-                        containerColor = colorResource(id = R.color.white_background)
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
                     )
                 ) {
                     Box(Modifier.fillMaxSize()) {
@@ -72,7 +70,8 @@ fun JuzScreens(
                                     .align(Alignment.CenterVertically),
                                 text = "Juz ${it.juzNumber}",
                                 fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Box(
                                 modifier = Modifier
@@ -104,7 +103,6 @@ fun JuzScreens(
                             }
                         }
                     }
-                    Divider(Modifier.fillMaxWidth().padding(top = 16.dp))
                 }
             }
         }

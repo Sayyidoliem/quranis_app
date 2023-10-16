@@ -31,6 +31,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.compose.QURANISAppTheme
 import com.example.quranisapp.Screen.PrayerScreens
 import com.example.quranisapp.Screen.QuranScreens
 import com.example.quranisapp.bottomscreens.BookmarkScreens
@@ -39,11 +40,9 @@ import com.example.quranisapp.bottomscreens.ProfileScreens
 import com.example.quranisapp.bottomscreens.SettingScreens
 import com.example.quranisapp.navigation.Screen
 import com.example.quranisapp.tabrowscreens.AyatScreens
-import com.example.quranisapp.ui.theme.QURANISAppTheme
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
 
 @SuppressLint("SuspiciousIndentation")
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainActivity() {
     QURANISAppTheme {
@@ -108,6 +107,7 @@ fun MainActivity() {
                     composable("home") {
                         HomeScreens(
                             goToPrayer = { navController.navigate("prayer") },
+                            pindah = {navController.navigate(it)}
                         )
                     }
                     composable("prayer") {
@@ -168,7 +168,10 @@ fun MainActivity() {
                         SettingScreens(goToProfile = { navController.navigate("profile") })
                     }
                     composable("profile") {
-                        ProfileScreens(goBack = { navController.navigateUp() })
+                        ProfileScreens(back = { navController.navigateUp() })
+                    }
+                    composable("qiblat"){
+                        FindQiblat(back = {navController.navigateUp()})
                     }
                 }
             }
@@ -185,7 +188,7 @@ data class BottomNavItem(
 
 val bottomNavItemList: List<BottomNavItem> = listOf(
     BottomNavItem("Home", Icons.Default.Home, Screen.Home.route),
-    BottomNavItem("Read", Icons.Default.Search, Screen.Read.route),
+    BottomNavItem("Discover", Icons.Default.Search, Screen.Read.route),
     BottomNavItem("Bookmarks", Icons.Default.Favorite, Screen.Bookmark.route),
     BottomNavItem("Settings", Icons.Default.Settings, Screen.Setting.route)
 )

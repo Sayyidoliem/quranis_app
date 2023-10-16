@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -30,15 +31,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.example.compose.QURANISAppTheme
 import com.example.quranisapp.R
 import com.example.quranisapp.tabrowscreens.JuzScreens
 import com.example.quranisapp.tabrowscreens.PageScreens
 import com.example.quranisapp.tabrowscreens.SurahScreens
-import com.example.quranisapp.ui.theme.QURANISAppTheme
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -56,7 +55,8 @@ fun QuranScreens(
             val tabList = listOf("Surah", "Juz", "Page")
             val scope = rememberCoroutineScope()
             val pageState = rememberPagerState(
-                initialPage = 0
+                initialPage = 0,
+                pageCount = {tabList.size},
             )
 
             var textfield by remember { mutableStateOf("") }
@@ -64,18 +64,18 @@ fun QuranScreens(
             Scaffold(
                 topBar = {
                     TopAppBar(
-                        title = { Text(text = "Read Quran", color = Color.White) },
+                        title = { Text(text = "Read Quran", color = MaterialTheme.colorScheme.onPrimary) },
                         colors = TopAppBarDefaults.smallTopAppBarColors(
-                            containerColor = colorResource(
-                                id = R.color.blue
-                            )
+                            containerColor = MaterialTheme.colorScheme.primary
                         ),
                         actions = {
-                            Icon(
-                                imageVector = Icons.Default.Notifications,
-                                contentDescription = "",
-                                tint = Color.White
-                            )
+                            IconButton(onClick = { /*TODO*/ }) {
+                                Icon(
+                                    imageVector = Icons.Default.Notifications,
+                                    contentDescription = "",
+                                    tint = MaterialTheme.colorScheme.onPrimary
+                                )
+                            }
                         }
                     )
                 },
@@ -84,7 +84,7 @@ fun QuranScreens(
                     Modifier
                         .fillMaxSize()
                         .padding(it)
-                        .background(color = colorResource(id = R.color.white_background))
+                        .background(color = MaterialTheme.colorScheme.background)
                 ) {
                     OutlinedTextField(modifier = Modifier
                         .fillMaxWidth()
@@ -105,7 +105,9 @@ fun QuranScreens(
                     ) {
                         tabList.forEachIndexed { index, text ->
                             Tab(
-                                modifier = Modifier.height(56.dp).background(color = colorResource(id = R.color.white_background)),
+                                modifier = Modifier
+                                    .height(56.dp)
+                                    .background(color = MaterialTheme.colorScheme.background),
                                 selected = index == pageState.currentPage,
                                 onClick = {
                                     scope.launch {
@@ -118,7 +120,6 @@ fun QuranScreens(
                     }
                     HorizontalPager(
                         state = pageState,
-                        pageCount = tabList.size,
                         modifier = Modifier.fillMaxSize()
                     ) { page ->
                         when (page) {

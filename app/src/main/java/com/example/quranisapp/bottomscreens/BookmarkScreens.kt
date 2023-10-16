@@ -17,15 +17,18 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconToggleButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -49,6 +52,7 @@ import androidx.compose.ui.unit.sp
 import com.example.quranisapp.R
 import com.example.quranisapp.data.database.BookmarkDatabase
 import com.example.quranisapp.tabrowscreens.SurahFavoriteButton
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -62,13 +66,15 @@ fun BookmarkScreens(goToRead: (surahNumber: Int?, juzNumber: Int?, pageNumber: I
     val snackbarHostState = remember {
         SnackbarHostState()
     }
-//    openDialog = !openDialog
+    var isDialogOpen by remember {
+        mutableStateOf(false)
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "Bookmarks", color = Color.White) },
-                colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = colorResource(id = R.color.blue)),
+                title = { Text(text = "Bookmarks", color = MaterialTheme.colorScheme.onPrimary) },
+                colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary),
             )
         }
     ) {
@@ -76,7 +82,7 @@ fun BookmarkScreens(goToRead: (surahNumber: Int?, juzNumber: Int?, pageNumber: I
             LazyColumn(
                 Modifier
                     .padding(it)
-                    .background(colorResource(id = R.color.white_background))
+                    .background(MaterialTheme.colorScheme.background)
             ) {
                 item {
                     Box(
@@ -88,15 +94,11 @@ fun BookmarkScreens(goToRead: (surahNumber: Int?, juzNumber: Int?, pageNumber: I
                             text = "Reading Bookmarks",
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
-                            color = colorResource(
-                                id = R.color.blue
-                            )
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                         Row(modifier = Modifier.align(Alignment.CenterEnd)) {
                             Text(
-                                text = "All", color = colorResource(
-                                    id = R.color.blue
-                                )
+                                text = "All", color = MaterialTheme.colorScheme.onBackground
                             )
                             Icon(
                                 imageVector = Icons.Default.KeyboardArrowDown,
@@ -141,15 +143,44 @@ fun BookmarkScreens(goToRead: (surahNumber: Int?, juzNumber: Int?, pageNumber: I
                                     .padding(16.dp), Alignment.TopEnd
                             ) {
                                 SurahFavoriteButton(
-                                    modifier = Modifier.align(Alignment.TopEnd),
+                                    modifier = Modifier
+                                        .clickable {
+                                            isDialogOpen = true
+                                        },
                                     totalAyah = it.totalAyah,
                                     surahNumber = it.surahNumber,
                                     juzNumber = it.juzNumber,
                                     surahNameEn = it.surahNameEn,
                                     surahNameAr = it.surahNameAr,
                                     surahDescend = it.surahDescend,
-                                    surahBookmark = it
+                                    surahBookmark = it,
                                 )
+                                when {
+                                    !isDialogOpen -> {
+                                    }
+                                    else -> {
+                                        AlertDialog(
+                                            onDismissRequest = { isDialogOpen = false },
+                                            confirmButton = {
+                                                TextButton(onClick = {
+                                                    scope.launch { dao.deleteAllFromSurahBookmark() }
+                                                    isDialogOpen = false
+                                                }) {
+                                                    Text(text = "Ya")
+                                                }
+                                            },
+                                            dismissButton = {
+                                                TextButton(onClick = {
+                                                    isDialogOpen = false
+                                                }
+                                                ) {
+                                                    Text(text = "Batal")
+                                                }
+                                            },
+                                            title = { Text(text = "Hapus Bookmark?") },
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
@@ -165,15 +196,11 @@ fun BookmarkScreens(goToRead: (surahNumber: Int?, juzNumber: Int?, pageNumber: I
                             text = "Playlist Bookmarks",
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
-                            color = colorResource(
-                                id = R.color.blue
-                            )
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                         Row(modifier = Modifier.align(Alignment.CenterEnd)) {
                             Text(
-                                text = "All", color = colorResource(
-                                    id = R.color.blue
-                                )
+                                text = "All", color = MaterialTheme.colorScheme.onBackground
                             )
                             Icon(
                                 imageVector = Icons.Default.KeyboardArrowDown,
@@ -211,7 +238,7 @@ fun BookmarkScreens(goToRead: (surahNumber: Int?, juzNumber: Int?, pageNumber: I
                                         .fillMaxWidth()
                                         .padding(16.dp), Alignment.TopEnd
                                 ) {
-                                    FavoriteBookmarksButton(modifier = Modifier.align(Alignment.TopEnd))
+                                    FavoriteBookmarksButton()
                                 }
                             }
                         }

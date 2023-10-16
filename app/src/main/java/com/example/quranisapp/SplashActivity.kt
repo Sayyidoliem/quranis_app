@@ -11,11 +11,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.compose.QURANISAppTheme
 import com.example.quranisapp.splashscreens.GetStarted1
 import com.example.quranisapp.splashscreens.GetStarted2
 import com.example.quranisapp.splashscreens.GetStarted3
 import com.example.quranisapp.splashscreens.SignScreens
-import com.example.quranisapp.ui.theme.QURANISAppTheme
 
 class SplashActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

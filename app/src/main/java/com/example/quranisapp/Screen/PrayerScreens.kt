@@ -8,7 +8,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,9 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -30,6 +27,7 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -45,7 +43,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -122,19 +119,19 @@ fun PrayerScreens(
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "",
-                            tint = Color.White
+                            tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
                 },
-                title = { Text(text = "Prayer Timings", color = Color.White) },
-                colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = colorResource(id = R.color.blue)),
+                title = { Text(text = "Prayer Timings", color = MaterialTheme.colorScheme.onPrimary) },
+                colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary),
             )
         }
     ) {
         LazyColumn(
             Modifier
                 .padding(it)
-                .background(colorResource(id = R.color.white_background))
+                .background(MaterialTheme.colorScheme.background)
         ) {
             //next prayer
             item {
@@ -228,7 +225,7 @@ fun PrayerScreens(
                         defaultElevation = 16.dp
                     ),
                     colors = CardDefaults.cardColors(
-                        containerColor = colorResource(id = R.color.white)
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
                     )
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -237,22 +234,34 @@ fun PrayerScreens(
                                 .padding(vertical = 30.dp)
                                 .padding(start = 20.dp)
                         ) {
-                            Text(text = "Next Prayer", fontSize = 20.sp)
+                            Text(text = "Next Prayer", fontSize = 20.sp, color = MaterialTheme.colorScheme.onPrimaryContainer)
                             Text(
                                 text = "11.30",
                                 fontSize = 32.sp,
                                 fontWeight = FontWeight.ExtraBold,
-                                color = colorResource(id = R.color.blue)
+                                color = MaterialTheme.colorScheme.surfaceTint
                             )
-                            if (prayerTime.isNotEmpty()) {
-                                Spacer(modifier = Modifier.size(20.dp))
-                                Text(text = "${prayerTime[0]?.gregorian}", fontSize = 20.sp)
-                                Spacer(modifier = Modifier.size(20.dp))
-                                Text(
-                                    modifier = Modifier.width(160.dp),
-                                    text = "$cityLocation, $provinceLocation",
-                                    fontSize = 20.sp
-                                )
+                            when {
+                                prayerTime.isNotEmpty() -> {
+                                    Spacer(modifier = Modifier.size(20.dp))
+                                    Text(text = "${prayerTime[0]?.gregorian}", fontSize = 20.sp)
+                                    Spacer(modifier = Modifier.size(20.dp))
+                                    Text(
+                                        modifier = Modifier.width(160.dp),
+                                        text = "$cityLocation, $provinceLocation",
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                        fontSize = 20.sp
+                                    )
+                                }
+                                else -> {
+                                    Spacer(modifier = Modifier.size(20.dp))
+                                    Text(
+                                        modifier = Modifier.width(160.dp),
+                                        text = cityLocation,
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                        fontSize = 20.sp
+                                    )
+                                }
                             }
                         }
                         Image(
@@ -263,17 +272,17 @@ fun PrayerScreens(
                                 .fillMaxWidth()
                         )
                     }
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(2),
-                        contentPadding = PaddingValues(16.dp)
-                    ) {
-                        items(timeSholatButton){it->
-                            Button(
-                                onClick = { /*TODO*/ }, modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(4.dp)
-                            ) {
-                                Text(text = "${it.judulSholat}, ${it.waktuSholat}", modifier = Modifier.padding(start = 16.dp))
+                    LazyRow(Modifier.padding(horizontal = 8.dp)) {
+                        item {
+                            timeSholatButton.forEach {
+                                Button(
+                                    onClick = { /*TODO*/ }, modifier = Modifier
+                                        .padding(8.dp)
+                                ) {
+                                    Text(
+                                        text = "${it.waktuSholat} : ${it.judulSholat}"
+                                    )
+                                }
                             }
                         }
                     }
@@ -287,7 +296,7 @@ fun PrayerScreens(
                         .padding(16.dp)
                         .clip(RoundedCornerShape(10)),
                     colors = CardDefaults.cardColors(
-                        containerColor = colorResource(id = R.color.white)
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
                     )
                 ) {
                     Column(

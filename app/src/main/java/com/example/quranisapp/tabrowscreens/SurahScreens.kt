@@ -19,6 +19,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconToggleButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -34,11 +35,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.quranisapp.R
 import com.example.quranisapp.data.database.BookmarkDatabase
 import com.example.quranisapp.data.database.QoranDatabase
 import com.example.quranisapp.data.database.entities.SurahBookmark
@@ -70,7 +69,7 @@ fun SurahScreens(
                             goToRead.invoke(surah.surahNumber, null, null)
                         },
                     colors = CardDefaults.cardColors(
-                        containerColor = colorResource(id = R.color.white_background)
+                        containerColor = MaterialTheme.colorScheme.background
                     )
 
                 ) {
@@ -81,7 +80,7 @@ fun SurahScreens(
                                     .padding(12.dp)
                                     .size(34.dp),
                                 colors = CardDefaults.cardColors(
-                                    containerColor = Color.White
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant
                                 )
                             ) {
                                 Box(Modifier.fillMaxSize()) {
@@ -106,7 +105,7 @@ fun SurahScreens(
                                     .padding(16.dp), Alignment.TopEnd
                             ) {
                                 SurahFavoriteButton(
-                                    modifier = Modifier.align(Alignment.TopEnd),
+                                    modifier = Modifier.align(Alignment.Center),
                                     totalAyah = surah.numberOfAyah,
                                     surahNumber = surah.surahNumber,
                                     juzNumber = surah.juzNumber,

@@ -41,7 +41,7 @@ import androidx.compose.ui.unit.dp
 import com.example.quranisapp.R
 
 @Composable
-fun ProfileScreens(goBack: () -> Unit) {
+fun ProfileScreens(back: () -> Unit) {
     var textfield by remember {
         mutableStateOf("")
     }
@@ -50,7 +50,7 @@ fun ProfileScreens(goBack: () -> Unit) {
             CenterAlignedTopAppBar(
                 title = { Text(text = "Profile", color = Color.White) },
                 navigationIcon = {
-                    IconButton(onClick = { goBack() }) {
+                    IconButton(onClick = { back() }) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "",
