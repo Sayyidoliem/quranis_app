@@ -41,6 +41,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
@@ -50,6 +51,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -57,6 +59,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -64,8 +67,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.quranisapp.R
@@ -204,13 +210,17 @@ fun AyatScreens(
 
     val lazyColumnState = rememberLazyListState()
 
-    val _currentPlayedAyah by remember {
-        mutableStateOf("")
-    }
+    val playQori = mutableListOf<MusicItem>()
 
     var showQoriDialog by remember {
         mutableStateOf(false)
     }
+
+    var isQoriPlay by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    val bottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
@@ -261,7 +271,6 @@ fun AyatScreens(
                             Text(text = "Close")
                         }
                     }
-
                 }
             }
         },
@@ -355,26 +364,16 @@ fun AyatScreens(
                                 )
                             })
                         DropdownMenuItem(
-                            text = { Text(text = "Play Qori") },
+                            text = { Text(text = "Play Surah") },
                             onClick = {
-//                            playerClient.stop()
-//                            val formatSurahNumber =
-//                                Converters.convertNumberToThreeDigits(it.surahNumber!!)
-//                            val formatAyahNumber =
-//                                Converters.convertNumberToThreeDigits(it.ayatNumber!!)
-//                            val musicItem = createMusicItem(
-//                                title = "${it.surahNameEn}: ${it.ayatNumber}",
-//                                surahNumber = formatSurahNumber,
-//                                ayahNumber = formatAyahNumber
-//                            )
-//                            playerClient.connect { _ ->
-//                                Toast.makeText(context, "Play", Toast.LENGTH_SHORT)
-//                                    .show()
-//                                playerClient.playMode = PlayMode.SINGLE_ONCE
-//                                val qoriPlaylist =
-//                                    createSinglePlaylist(musicItem = musicItem)
-//                                playerClient.setPlaylist(qoriPlaylist!!, true)
-//                            }
+                                isQoriPlay = true
+                                expanded = false
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.baseline_play_circle_24),
+                                    contentDescription = null
+                                )
                             })
                         DropdownMenuItem(
                             text = { Text("Send Feedback") },
@@ -508,9 +507,69 @@ fun AyatScreens(
                                 )
                             }
                         }
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp),
+                        ){
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceEvenly
+                            ) {
+                                IconButton(onClick = { /*TODO*/ }) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.baseline_skip_previous_24),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(120.dp)
+                                    )
+                                }
+                                IconButton(onClick = {
+                                    isQoriPlay = true
+                                    playerClient.stop()
+                                    state.value.forEach { qoran ->
+                                        val formatSurahNumber =
+                                            Converters.convertNumberToThreeDigits(qoran.surahNumber!!)
+                                        val formatAyahNumber =
+                                            Converters.convertNumberToThreeDigits(qoran.ayatNumber!!)
+                                        val musicItem = createMusicItem(
+                                            title = "${qoran.surahNameEn}: ",
+                                            surahNumber = formatSurahNumber,
+                                            ayahNumber = formatAyahNumber
+                                        )
+                                        playQori.add(musicItem)
+                                    }
+
+                                    playerClient.connect { _ ->
+                                        //biar klo play berhentiin sebelummnya
+                                        Toast.makeText(context, "Play", Toast.LENGTH_SHORT)
+                                            .show()
+                                        playerClient.playMode = PlayMode.PLAYLIST_LOOP
+                                        val qoriPlaylist =
+                                            createSurahPlaylist(playQori = playQori)
+                                        playerClient.setPlaylist(qoriPlaylist!!, true)
+                                    }
+                                }) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.baseline_play_circle_24),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(300.dp)
+                                    )
+                                }
+                                IconButton(onClick = { /*TODO*/ }) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.baseline_skip_next_24),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(120.dp)
+                                    )
+                                }
+                            }
+                        }
                     }
                     //list per item
-                    Row(Modifier.fillMaxWidth()) {
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp)) {
                         Card(
                             modifier = Modifier
                                 .padding(12.dp)
@@ -648,7 +707,9 @@ fun AyatScreens(
                                 ) {
                                     RadioButton(
                                         selected = (option == selectedOption),
-                                        onClick = { selectedOption = option }
+                                        onClick = {
+                                            selectedOption = option
+                                        }
                                     )
                                     Text(
                                         text = option,
@@ -774,40 +835,123 @@ fun AyatScreens(
                     },
                 )
             }
+            if (isQoriPlay) {
+                ModalBottomSheet(
+                    onDismissRequest = { isQoriPlay = false },
+                    sheetState = bottomSheetState
+                ) {
+                    state.value
+                    Column {
+                        Text(
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            text = buildAnnotatedString {
+                                withStyle(
+                                    style = SpanStyle(
+                                        fontSize = 30.sp,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                ) {
+                                    append("$surahNameEn\n")
+                                }
+                                withStyle(
+                                    style = SpanStyle(
+                                        fontSize = 20.sp,
+                                        fontWeight = FontWeight.Normal
+                                    )
+                                ) {
+                                    append("qoriName")
+                                }
+                            }
+                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            IconButton(onClick = { /*TODO*/ }) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.baseline_skip_previous_24),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(120.dp)
+                                )
+                            }
+                            IconButton(onClick = {
+                                playerClient.stop()
+                                state.value.forEach {
+                                    val formatSurahNumber =
+                                        Converters.convertNumberToThreeDigits(it.surahNumber!!)
+                                    val formatAyahNumber =
+                                        Converters.convertNumberToThreeDigits(it.ayatNumber!!)
+                                    val musicItem = createMusicItem(
+                                        title = "${it.surahNameEn}: ",
+                                        surahNumber = formatSurahNumber,
+                                        ayahNumber = formatAyahNumber
+                                    )
+                                    playQori.add(musicItem)
+                                }
+
+                                playerClient.connect { _ ->
+                                    Toast.makeText(context, "Play", Toast.LENGTH_SHORT)
+                                        .show()
+                                    playerClient.playMode = PlayMode.LOOP
+                                    val qoriPlaylist =
+                                        createSurahPlaylist(playQori = playQori)
+                                    playerClient.setPlaylist(qoriPlaylist, true)
+                                }
+                            }) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.baseline_play_circle_24),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(300.dp)
+                                )
+                            }
+                            IconButton(onClick = { playerClient.skipToNext() }) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.baseline_skip_next_24),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(120.dp)
+                                )
+                            }
+                        }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            OutlinedButton(
+                                onClick = {
+                                    val sendIntent: Intent = Intent().apply {
+                                        action = Intent.ACTION_SEND
+                                        putExtra(Intent.EXTRA_TEXT, footNoteState.value)
+                                        type = "text/plain"
+                                    }
+                                    val shareIntent = Intent.createChooser(sendIntent, null)
+                                    context.startActivity(shareIntent)
+                                },
+                                modifier = Modifier
+                                    .padding(16.dp)
+                            ) {
+                                Text(text = "Share")
+                            }
+                            Button(
+                                onClick = {
+                                    scope.launch { bottomSheetState.hide() }.invokeOnCompletion {
+                                        if (!bottomSheetState.isVisible) {
+                                            isQoriPlay = false
+                                            playerClient.stop()
+                                        }
+                                    }
+                                },
+                                modifier = Modifier
+                                    .padding(16.dp)
+                            ) {
+                                Text(text = "Close")
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
-
-//modal sheet drawer
-//
-//var openBottomSheet by rememberSaveable { mutableStateOf(false) }
-//val bottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded  = true)
-//
-//
-//
-//// Sheet content
-//if (openBottomSheet) {
-//    ModalBottomSheet(
-//        onDismissRequest = { openBottomSheet = false },
-//        sheetState = bottomSheetState,
-//    ) {
-//        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-//            Button(
-//                // Note: If you provide logic outside of onDismissRequest to remove the sheet,
-//                // you must additionally handle intended state cleanup, if any.
-//                onClick = {
-//                    scope.launch { bottomSheetState.hide() }.invokeOnCompletion {
-//                        if (!bottomSheetState.isVisible) {
-//                            openBottomSheet = false
-//                        }
-//                    }
-//                }
-//            ) {
-//                Text("Hide Bottom Sheet")
-//            }
-//        }
-//    }
-//}
 
 @Composable
 fun AyatFavoriteButton(
@@ -888,7 +1032,7 @@ private fun createSinglePlaylist(
 }
 
 private fun createSurahPlaylist(
-    musicItem: MusicItem
-): Playlist? {
-    return Playlist.Builder().append(musicItem).build()
+    playQori: List<MusicItem>
+): Playlist {
+    return Playlist.Builder().appendAll(playQori).build()
 }
