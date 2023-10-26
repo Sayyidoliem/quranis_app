@@ -69,7 +69,7 @@ fun PageScreens(
                                     .fillMaxWidth()
                                     .padding(16.dp), Alignment.TopEnd
                             ) {
-                                FavoriteButton(modifier = Modifier.align(Alignment.TopEnd))
+                                FavoriteButton()
                             }
                         }
                         Divider(modifier = Modifier.padding(horizontal = 16.dp), thickness = 2.dp)

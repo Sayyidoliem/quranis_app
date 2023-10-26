@@ -20,7 +20,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -34,13 +34,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.quranisapp.bottomscreens.FavoriteButton
 
-
 @Composable
 fun SearchScreens() {
 
     var itemList = listOf("Trending","Discover","Top Chart")
     var selectedItem by remember {
-        mutableStateOf(0)
+        mutableIntStateOf(0)
     }
 
     LazyColumn {

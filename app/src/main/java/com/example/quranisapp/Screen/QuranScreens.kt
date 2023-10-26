@@ -11,7 +11,8 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,6 +36,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.compose.QURANISAppTheme
 import com.example.quranisapp.R
+import com.example.quranisapp.bottomscreens.BookmarkScreens
 import com.example.quranisapp.tabrowscreens.JuzScreens
 import com.example.quranisapp.tabrowscreens.PageScreens
 import com.example.quranisapp.tabrowscreens.SurahScreens
@@ -45,18 +47,18 @@ import kotlinx.coroutines.launch
 @Composable
 fun QuranScreens(
     goToRead: (surahNumber: Int?, juzNumber: Int?, pageNumber: Int?) -> Unit,
-//    goToSurah: () -> Unit,
+    back: () -> Unit,
 ) {
     QURANISAppTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            val tabList = listOf("Surah", "Juz", "Page")
+            val tabList = listOf("Surah", "Juz", "Page", "Bookmarks")
             val scope = rememberCoroutineScope()
             val pageState = rememberPagerState(
                 initialPage = 0,
-                pageCount = {tabList.size},
+                pageCount = { tabList.size },
             )
 
             var textfield by remember { mutableStateOf("") }
@@ -64,14 +66,28 @@ fun QuranScreens(
             Scaffold(
                 topBar = {
                     TopAppBar(
-                        title = { Text(text = "Read Quran", color = MaterialTheme.colorScheme.onPrimary) },
+                        title = {
+                            Text(
+                                text = "Read Quran",
+                                color = MaterialTheme.colorScheme.onPrimary
+                            )
+                        },
                         colors = TopAppBarDefaults.smallTopAppBarColors(
                             containerColor = MaterialTheme.colorScheme.primary
                         ),
+                        navigationIcon = {
+                            IconButton(onClick = { back() }) {
+                                Icon(
+                                    imageVector = Icons.Default.ArrowBack,
+                                    contentDescription = "",
+                                    tint = MaterialTheme.colorScheme.onPrimary
+                                )
+                            }
+                        },
                         actions = {
                             IconButton(onClick = { /*TODO*/ }) {
                                 Icon(
-                                    imageVector = Icons.Default.Notifications,
+                                    imageVector = Icons.Default.MoreVert,
                                     contentDescription = "",
                                     tint = MaterialTheme.colorScheme.onPrimary
                                 )
@@ -125,15 +141,23 @@ fun QuranScreens(
                         when (page) {
                             0 -> SurahScreens(
                                 Modifier.fillMaxSize(),
-                                goToRead = goToRead)
+                                goToRead = goToRead
+                            )
 
                             1 -> JuzScreens(
                                 Modifier.fillMaxSize(),
-                                goToRead = goToRead)
+                                goToRead = goToRead
+                            )
 
                             2 -> PageScreens(
                                 Modifier.fillMaxSize(),
-                                goToRead = goToRead)
+                                goToRead = goToRead
+                            )
+
+                            3 -> BookmarkScreens(
+                                Modifier.fillMaxSize(),
+                                goToRead = goToRead
+                            )
                         }
                     }
                 }

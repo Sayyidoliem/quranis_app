@@ -7,22 +7,32 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Divider
+import androidx.compose.material3.DrawerState
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -35,11 +45,12 @@ import com.example.compose.QURANISAppTheme
 import com.example.quranisapp.Screen.PrayerScreens
 import com.example.quranisapp.Screen.QuranScreens
 import com.example.quranisapp.bottomscreens.BookmarkScreens
+import com.example.quranisapp.bottomscreens.DiscoverScreens
 import com.example.quranisapp.bottomscreens.HomeScreens
-import com.example.quranisapp.bottomscreens.ProfileScreens
 import com.example.quranisapp.bottomscreens.SettingScreens
 import com.example.quranisapp.navigation.Screen
 import com.example.quranisapp.tabrowscreens.AyatScreens
+import kotlinx.coroutines.launch
 
 @SuppressLint("SuspiciousIndentation")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -55,131 +66,187 @@ fun MainActivity() {
             val navController: NavHostController = rememberNavController()
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             var currentRoute: String? = navBackStackEntry?.destination?.route
+            var currentDestination = navBackStackEntry?.destination?.route
 
+            val navDrawerState = DrawerState(initialValue = DrawerValue.Closed)
 
-            Scaffold(
-                modifier = Modifier,
-                bottomBar = {
-                    if (bottomNavItemList.any {
-                            it.route == currentRoute
-                        }
-                    )
-                        NavigationBar(
-                            modifier = Modifier.clip(
-                                RoundedCornerShape(
-                                    topStart = 30.dp,
-                                    topEnd = 30.dp
-                                )
-                            )
-                        ) {
-                            bottomNavItemList.map { item: BottomNavItem ->
-                                NavigationBarItem(
-                                    selected = currentRoute == item.route,//untuk membandingkan index
-                                    onClick = {
-                                        currentRoute = item.route
-                                        navController.navigate(item.route) {
-                                            popUpTo(navController.graph.findStartDestination().id) {
-                                                saveState =
-                                                    true //buat menyimpan state mutable di setiap screen
-                                            }
-                                            restoreState = true
-                                            launchSingleTop =
-                                                true//buat klo back, langsung keluar app(bukan ke home)
+            val scope = rememberCoroutineScope()
+
+            ModalNavigationDrawer(
+                drawerState = navDrawerState,
+                gesturesEnabled = true,
+                drawerContent = {
+                    ModalDrawerSheet(drawerContainerColor = MaterialTheme.colorScheme.surface) {
+                        Text(
+                            modifier = Modifier.padding(start = 24.dp, top = 24.dp, bottom = 16.dp),
+                            text = "QURANIS",
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        navigationdrawerList.map { item ->
+                            NavigationDrawerItem(
+                                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+                                label = { Text(text = item.label) },
+                                selected = currentDestination == item.route,
+                                onClick = {
+                                    currentDestination = item.route
+                                    navController.navigate(item.route) {
+                                        popUpTo(navController.graph.findStartDestination().id) {
+                                            saveState = true
                                         }
-                                    },
-                                    icon = {
-                                        Icon(
-                                            imageVector = item.iconBottom,
-                                            contentDescription = item.label
-                                        )
-                                    },
-                                    label = { Text(text = item.label) },
-                                )
-                            }
+                                        restoreState = true
+                                        launchSingleTop = true
+                                    }
+                                },
+                                icon = { Icon(painter = painterResource(id = item.icon), contentDescription = "") }
+                            )
                         }
+                        Divider(modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp), thickness = 1.dp)
+                        secondaryNavItemList.map { item ->
+                            NavigationDrawerItem(
+                                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+                                label = { Text(text = item.label) },
+                                selected = currentDestination == item.route,
+                                onClick = {
+                                    navController.navigate(item.route) {
+                                        popUpTo(navController.graph.findStartDestination().id) {
+                                            saveState = true
+                                        }
+                                        restoreState = true
+                                        launchSingleTop = true
+                                    }
+                                },
+                                icon = { Icon(painter = painterResource(id = item.icon), contentDescription = "") }
+                            )
+                        }
+                    }
                 }
-            ) { innerPadding ->
-                NavHost(
-                    modifier = Modifier.padding(innerPadding),
-                    navController = navController,
-                    startDestination = "home"
-                ) {
-                    composable("home") {
-                        HomeScreens(
-                            goToPrayer = { navController.navigate("prayer") },
-                            pindah = {navController.navigate(it)}
-                        )
-                    }
-                    composable("prayer") {
-                        PrayerScreens(back = { navController.navigateUp() })
-                    }
-                    composable(Screen.Read.route) {
-                        QuranScreens(
-                            goToRead = { surahNumber, juzNumber, pageNumber ->
-                                navController.navigate(
-                                    Screen.Detail.createRoute(
-                                        surahNumber = surahNumber,
-                                        juzNumber = juzNumber,
-                                        pageNumber = pageNumber
+            ) {
+                Scaffold(
+                    modifier = Modifier,
+                    bottomBar = {
+                        if (bottomNavItemList.any {
+                                it.route == currentRoute
+                            }
+                        ) NavigationBar(
+                                modifier = Modifier.clip(
+                                    RoundedCornerShape(
+                                        topStart = 30.dp,
+                                        topEnd = 30.dp
                                     )
                                 )
-                            },
-                        )
-                    }
-                    composable(Screen.Detail.route, arguments = listOf(
-                        navArgument("surahNumber") {
-                            type = NavType.IntType
-                            defaultValue = -1
-                        },
-                        navArgument("juzNumber") {
-                            type = NavType.IntType
-                            defaultValue = -1
-                        },
-                        navArgument("pageNumber") {
-                            type = NavType.IntType
-                            defaultValue = -1
-                        }
-                    )
+                            ) {
+                                bottomNavItemList.map { item: BottomNavItem ->
+                                    NavigationBarItem(
+                                        selected = currentRoute == item.route,//untuk membandingkan index
+                                        onClick = {
+                                            currentRoute = item.route
+                                            navController.navigate(item.route) {
+                                                popUpTo(navController.graph.findStartDestination().id) {
+                                                    saveState =
+                                                        true //buat menyimpan state mutable di setiap screen
+                                                }
+                                                restoreState = true
+                                                launchSingleTop =
+                                                    true//buat klo back, langsung keluar app(bukan ke home)
+                                            }
+                                        },
+                                        icon = {
+                                            Icon(
+                                                imageVector = item.iconBottom,
+                                                contentDescription = item.label
+                                            )
+                                        },
+                                        label = { Text(text = item.label) },
+                                    )
+                                }
+                            }
+                    },
+                ) { innerPadding ->
+                    NavHost(
+                        modifier = Modifier.padding(innerPadding),
+                        navController = navController,
+                        startDestination = "home"
                     ) {
-                        val surahNumber = it.arguments?.getInt("surahNumber") ?: -1
-                        val juzNumber = it.arguments?.getInt("juzNumber") ?: -1
-                        val pageNumber = it.arguments?.getInt("pageNumber") ?: -1
-                        AyatScreens(
-                            goBack = { navController.navigateUp() },
-                            surahNumber = surahNumber,
-                            juzNumber = juzNumber,
-                            pageNumber = pageNumber
-                        )
-                    }
-                    composable("bookmark") {
-                        BookmarkScreens(
-                            goToRead = { surahNumber, juzNumber, pageNumber ->
-                                navController.navigate(
-                                    Screen.Detail.createRoute(
-                                        surahNumber = surahNumber,
-                                        juzNumber = juzNumber,
-                                        pageNumber = pageNumber
+                        composable("home") {
+                            HomeScreens(
+                                goToPrayer = { navController.navigate("prayer") },
+                                pindah = { navController.navigate(it) },
+                                openDrawer = { scope.launch { navDrawerState.open() } }
+                            )
+                        }
+                        composable("prayer") {
+                            PrayerScreens(back = { navController.navigateUp() })
+                        }
+                        composable(Screen.Discover.route){
+                            DiscoverScreens()
+                        }
+                        composable(Screen.Read.route) {
+                            QuranScreens(
+                                goToRead = { surahNumber, juzNumber, pageNumber ->
+                                    navController.navigate(
+                                        Screen.Detail.createRoute(
+                                            surahNumber = surahNumber,
+                                            juzNumber = juzNumber,
+                                            pageNumber = pageNumber
+                                        )
                                     )
-                                )
+                                },
+                                back = {navController.navigateUp()}
+                            )
+                        }
+                        composable(Screen.Detail.route, arguments = listOf(
+                            navArgument("surahNumber") {
+                                type = NavType.IntType
+                                defaultValue = -1
                             },
+                            navArgument("juzNumber") {
+                                type = NavType.IntType
+                                defaultValue = -1
+                            },
+                            navArgument("pageNumber") {
+                                type = NavType.IntType
+                                defaultValue = -1
+                            }
                         )
-                    }
-                    composable("setting") {
-                        SettingScreens(goToProfile = { navController.navigate("profile") })
-                    }
-                    composable("profile") {
-                        ProfileScreens(back = { navController.navigateUp() })
-                    }
-                    composable("qiblat"){
-                        FindQiblat(back = {navController.navigateUp()})
+                        ) {
+                            val surahNumber = it.arguments?.getInt("surahNumber") ?: -1
+                            val juzNumber = it.arguments?.getInt("juzNumber") ?: -1
+                            val pageNumber = it.arguments?.getInt("pageNumber") ?: -1
+                            AyatScreens(
+                                goBack = { navController.navigateUp() },
+                                surahNumber = surahNumber,
+                                juzNumber = juzNumber,
+                                pageNumber = pageNumber
+                            )
+                        }
+                        composable("bookmark") {
+                            BookmarkScreens(
+                                modifier = Modifier,
+                                goToRead = { surahNumber, juzNumber, pageNumber ->
+                                    navController.navigate(
+                                        Screen.Detail.createRoute(
+                                            surahNumber = surahNumber,
+                                            juzNumber = juzNumber,
+                                            pageNumber = pageNumber
+                                        )
+                                    )
+                                },
+                            )
+                        }
+                        composable("setting") {
+                            SettingScreens(goToProfile = { navController.navigate("profile") })
+                        }
+                        composable("qiblat") {
+                            FindQiblat(back = { navController.navigateUp() })
+                        }
                     }
                 }
             }
         }
     }
 }
-
-
 data class BottomNavItem(
     val label: String,
     val iconBottom: ImageVector,
@@ -188,7 +255,25 @@ data class BottomNavItem(
 
 val bottomNavItemList: List<BottomNavItem> = listOf(
     BottomNavItem("Home", Icons.Default.Home, Screen.Home.route),
-    BottomNavItem("Discover", Icons.Default.Search, Screen.Read.route),
+    BottomNavItem("Discover", Icons.Default.Home, Screen.Discover.route),
     BottomNavItem("Bookmarks", Icons.Default.Favorite, Screen.Bookmark.route),
     BottomNavItem("Settings", Icons.Default.Settings, Screen.Setting.route)
+)
+
+data class NavItem(
+    val route: String,
+    val label: String,
+    val icon: Int
+)
+
+val navigationdrawerList: List<NavItem> = listOf(
+    NavItem(Screen.Home.route, "Home", R.drawable.alarm),
+    NavItem(Screen.Read.route, "Read Quran", R.drawable.alarm),
+    NavItem(Screen.Setting.route, "Settings", R.drawable.alarm)
+)
+
+val secondaryNavItemList: List<NavItem> = listOf(
+    NavItem("dowloaded", "Downloaded", R.drawable.alarm),
+    NavItem("a", "Downloaded", R.drawable.alarm),
+    NavItem("about", "App Info", R.drawable.alarm)
 )

@@ -3,16 +3,19 @@ package com.example.quranisapp.tabrowscreens
 import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -38,6 +41,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -69,14 +73,21 @@ import com.example.quranisapp.data.database.BookmarkDatabase
 import com.example.quranisapp.data.database.QoranDatabase
 import com.example.quranisapp.data.database.entities.Bookmark
 import com.example.quranisapp.data.database.entities.SurahBookmark
+import com.example.quranisapp.data.kotpref.Qories
 import com.example.quranisapp.data.kotpref.SettingPreferences
 import com.example.quranisapp.read.component.SpannableText
 import com.example.quranisapp.service.player.MyPlayerServices
+import com.example.quranisapp.utils.Converters
+import com.example.quranisapp.utils.Converters.toAnnotatedString
 import com.example.quranisapp.utils.GlobalState
+import com.example.quranisapp.utils.TajweedHelper
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import snow.player.PlayMode
 import snow.player.PlayerClient
 import snow.player.audio.MusicItem
+import snow.player.playlist.Playlist
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -91,12 +102,12 @@ fun AyatScreens(
     val bookmarkDao = BookmarkDatabase.getInstance(context).dao()
     val list =
         when {
-            surahNumber != -1 -> {
-                dao.getAyatSurah(surahNumber)
+            juzNumber != -1 && surahNumber != -1 -> {
+                dao.getAyatJozz(juzNumber)
             }
 
-            juzNumber != -1 -> {
-                dao.getAyatJozz(juzNumber)
+            surahNumber != -1 -> {
+                dao.getAyatSurah(surahNumber)
             }
 
             else -> {
@@ -179,7 +190,7 @@ fun AyatScreens(
     var showDialog by remember { mutableStateOf(false) }
     var showDialogSetting by remember { mutableStateOf(false) }
 
-    val footNoteState = remember { mutableStateOf("") }
+    var footNoteState = remember { mutableStateOf("") }
 
     val scaffoldState = rememberBottomSheetScaffoldState()
 
@@ -189,6 +200,16 @@ fun AyatScreens(
 
     val changeLanguageState by remember {
         mutableStateOf(SettingPreferences.isSelectedLanguage)
+    }
+
+    val lazyColumnState = rememberLazyListState()
+
+    val _currentPlayedAyah by remember {
+        mutableStateOf("")
+    }
+
+    var showQoriDialog by remember {
+        mutableStateOf(false)
     }
 
     BottomSheetScaffold(
@@ -206,26 +227,44 @@ fun AyatScreens(
                         )
                     }
                     Text(text = footNoteState.value, modifier = Modifier.padding(16.dp))
-                    Button(
-                        onClick = {
-                            scope.launch {
-                                if (scaffoldState.bottomSheetState.hasExpandedState) {
-                                    scaffoldState.bottomSheetState.show()
-                                }
-                            }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .align(Alignment.CenterHorizontally)
-                            .padding(16.dp)
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(text = "Close")
+                        OutlinedButton(
+                            onClick = {
+                                val sendIntent: Intent = Intent().apply {
+                                    action = Intent.ACTION_SEND
+                                    putExtra(Intent.EXTRA_TEXT, footNoteState.value)
+                                    type = "text/plain"
+                                }
+                                val shareIntent = Intent.createChooser(sendIntent, null)
+                                context.startActivity(shareIntent)
+                            },
+                            modifier = Modifier
+                                .padding(16.dp)
+                        ) {
+                            Text(text = "Share")
+                        }
+                        Button(
+                            onClick = {
+                                scope.launch {
+                                    if (scaffoldState.bottomSheetState.hasExpandedState) {
+                                        scaffoldState.bottomSheetState.show()
+                                    }
+                                }
+                            },
+                            modifier = Modifier
+                                .padding(16.dp)
+                        ) {
+                            Text(text = "Close")
+                        }
                     }
+
                 }
             }
         },
-        containerColor = Color.White,
-        sheetContainerColor = Color.White,
         topBar = {
             TopAppBar(
                 navigationIcon = {
@@ -239,7 +278,7 @@ fun AyatScreens(
                 },
                 title = {
                     Text(
-                        text = "${surahNumber}. ${surahNameEn}",
+                        text = surahNameEn,
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                 },
@@ -275,7 +314,10 @@ fun AyatScreens(
                             onClick = {
                                 val sendIntent: Intent = Intent().apply {
                                     action = Intent.ACTION_SEND
-                                    putExtra(Intent.EXTRA_TEXT, "$surahNameEn | $surahNameAr | $surahNameId | Juz $juzSurah | $descendPlace" )
+                                    putExtra(
+                                        Intent.EXTRA_TEXT,
+                                        "$surahNameEn | $surahNameAr | $surahNameId | Juz $juzSurah | $descendPlace"
+                                    )
                                     type = "text/plain"
                                 }
                                 val shareIntent = Intent.createChooser(sendIntent, null)
@@ -313,6 +355,28 @@ fun AyatScreens(
                                 )
                             })
                         DropdownMenuItem(
+                            text = { Text(text = "Play Qori") },
+                            onClick = {
+//                            playerClient.stop()
+//                            val formatSurahNumber =
+//                                Converters.convertNumberToThreeDigits(it.surahNumber!!)
+//                            val formatAyahNumber =
+//                                Converters.convertNumberToThreeDigits(it.ayatNumber!!)
+//                            val musicItem = createMusicItem(
+//                                title = "${it.surahNameEn}: ${it.ayatNumber}",
+//                                surahNumber = formatSurahNumber,
+//                                ayahNumber = formatAyahNumber
+//                            )
+//                            playerClient.connect { _ ->
+//                                Toast.makeText(context, "Play", Toast.LENGTH_SHORT)
+//                                    .show()
+//                                playerClient.playMode = PlayMode.SINGLE_ONCE
+//                                val qoriPlaylist =
+//                                    createSinglePlaylist(musicItem = musicItem)
+//                                playerClient.setPlaylist(qoriPlaylist!!, true)
+//                            }
+                            })
+                        DropdownMenuItem(
                             text = { Text("Send Feedback") },
                             onClick = { expanded = false },
                             leadingIcon = {
@@ -328,108 +392,124 @@ fun AyatScreens(
         }
     ) {
         list.collectAsState(initial = emptyList()).let { state ->
+            LaunchedEffect(key1 = true) {
+                if (surahNumber != -1 && juzNumber != -1) {
+                    delay(600)
+                    val indexBySurahNumber =
+                        state.value.indexOfFirst { it.surahNumber == surahNumber }
+                    lazyColumnState.scrollToItem(indexBySurahNumber ?: 0)
+                }
+            }
             LazyColumn(
                 Modifier
                     .padding(it)
-                    .background(MaterialTheme.colorScheme.background)
+                    .background(MaterialTheme.colorScheme.background),
+                state = lazyColumnState
             ) {
-                item {
-                    val bismillahText =
-                        when (surahNumber) {
-                            1, 9 -> {
-                                "أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ"
-                            }
+                items(state.value) {
+                    //card info per surat
+                    if (it.ayatNumber == 1) {
+                        val bismillahText =
+                            when (surahNumber) {
+                                1, 9 -> {
+                                    "أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ"
+                                }
 
-                            else -> {
-                                "بِسْمِ اللهِ الرَّحْمَنِ الرَّحِيْمِ"
+                                else -> {
+                                    "بِسْمِ اللهِ الرَّحْمَنِ الرَّحِيْمِ"
+                                }
                             }
-                        }
-                    Card(
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.primary
-                        )
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(16.dp)
-                        ) {
-                            Text(
-                                modifier = Modifier.fillMaxWidth(),
-                                text = surahNameEn,
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                textAlign = TextAlign.Center,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 24.sp
+                        Card(
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.primary
                             )
-                            Row(
-                                Modifier
-                                    .align(Alignment.CenterHorizontally)
-                                    .padding(8.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(16.dp)
                             ) {
                                 Text(
-                                    text = surahNameAr,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    text = "${it.surahNameEn}",
                                     color = MaterialTheme.colorScheme.onPrimary,
-                                    fontWeight = FontWeight.Medium,
-                                    fontSize = 19.sp
+                                    textAlign = TextAlign.Center,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 24.sp
                                 )
-                                Spacer(modifier = Modifier.padding(4.dp))
-                                Text(
-                                    text = "·",
+                                surahNameEn = it.surahNameEn!!
+                                surahNameAr = it.surahNameAr!!
+                                surahNameId = it.surahNameId!!
+                                juzSurah = it.juzNumber!!
+                                descendPlace = it.surahDescendPlace!!
+                                Row(
+                                    Modifier
+                                        .align(Alignment.CenterHorizontally)
+                                        .padding(8.dp)
+                                ) {
+                                    Text(
+                                        text = "${it.surahNameAr}",
+                                        color = MaterialTheme.colorScheme.onPrimary,
+                                        fontWeight = FontWeight.Medium,
+                                        fontSize = 19.sp
+                                    )
+                                    Spacer(modifier = Modifier.padding(4.dp))
+                                    Text(
+                                        text = "·",
+                                        color = MaterialTheme.colorScheme.onPrimary,
+                                        fontWeight = FontWeight.Medium,
+                                        fontSize = 16.sp
+                                    )
+                                    Spacer(modifier = Modifier.padding(4.dp))
+                                    Text(
+                                        text = "${it.surahNameId}",
+                                        color = MaterialTheme.colorScheme.onPrimary,
+                                        fontWeight = FontWeight.Medium,
+                                        fontSize = 16.sp
+                                    )
+                                }
+                                Divider(
+                                    Modifier.padding(horizontal = 56.dp, vertical = 16.dp),
+                                    thickness = 2.dp,
                                     color = MaterialTheme.colorScheme.onPrimary,
-                                    fontWeight = FontWeight.Medium,
-                                    fontSize = 16.sp
                                 )
-                                Spacer(modifier = Modifier.padding(4.dp))
+                                Row(Modifier.align(Alignment.CenterHorizontally)) {
+                                    Text(
+                                        text = "Juz ${juzSurah}",
+                                        color = MaterialTheme.colorScheme.onPrimary,
+                                    )
+                                    Spacer(modifier = Modifier.padding(4.dp))
+                                    Text(text = "·", color = MaterialTheme.colorScheme.onPrimary)
+                                    Spacer(modifier = Modifier.padding(4.dp))
+                                    Text(
+                                        text = "${it.surahDescendPlace}",
+                                        color = MaterialTheme.colorScheme.onPrimary,
+                                    )
+                                    Spacer(modifier = Modifier.padding(4.dp))
+                                    Text(text = "·", color = MaterialTheme.colorScheme.onPrimary)
+                                    Spacer(modifier = Modifier.padding(4.dp))
+                                    Text(
+                                        text = "${it.ayatNumber} Ayat",
+                                        color = MaterialTheme.colorScheme.onPrimary,
+                                    )
+                                }
                                 Text(
-                                    text = surahNameId,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(top = 16.dp),
+                                    text = "· $bismillahText ·",
                                     color = MaterialTheme.colorScheme.onPrimary,
-                                    fontWeight = FontWeight.Medium,
-                                    fontSize = 16.sp
+                                    textAlign = TextAlign.Center,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 24.sp
                                 )
                             }
-                            Divider(
-                                Modifier.padding(horizontal = 56.dp, vertical = 16.dp),
-                                thickness = 2.dp,
-                                color = MaterialTheme.colorScheme.onPrimary,
-                            )
-                            Row(Modifier.align(Alignment.CenterHorizontally)) {
-                                Text(
-                                    text = "Juz ${juzSurah}",
-                                    color = MaterialTheme.colorScheme.onPrimary,
-                                )
-                                Spacer(modifier = Modifier.padding(4.dp))
-                                Text(text = "·", color = MaterialTheme.colorScheme.onPrimary)
-                                Spacer(modifier = Modifier.padding(4.dp))
-                                Text(
-                                    text = descendPlace,
-                                    color = MaterialTheme.colorScheme.onPrimary,
-                                )
-                                Spacer(modifier = Modifier.padding(4.dp))
-                                Text(text = "·", color = MaterialTheme.colorScheme.onPrimary)
-                                Spacer(modifier = Modifier.padding(4.dp))
-                                Text(
-                                    text = "${totalAyah} Ayat",
-                                    color = MaterialTheme.colorScheme.onPrimary,
-                                )
-                            }
-                            Text(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(top = 16.dp),
-                                text = "· ${bismillahText} ·",
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                textAlign = TextAlign.Center,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 24.sp
-                            )
                         }
                     }
-                }
-                items(state.value) {
+                    //list per item
                     Row(Modifier.fillMaxWidth()) {
                         Card(
                             modifier = Modifier
@@ -450,7 +530,10 @@ fun AyatScreens(
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text(
                                 modifier = Modifier.fillMaxWidth(),
-                                text = Regex("\\d+\$").replace(it.ayatText!!, ""),
+                                text = TajweedHelper.getTajweed(
+                                    context = context,
+                                    s = Regex("\\d+\$").replace(it.ayatText!!, ""),
+                                ).toAnnotatedString(MaterialTheme.colorScheme.primary),
                                 fontSize = 20.sp,
                                 textAlign = TextAlign.End,
                                 letterSpacing = 3.sp,
@@ -460,7 +543,7 @@ fun AyatScreens(
                             SpannableText(
                                 modifier = Modifier.align(Alignment.Start),
                                 text = it.tranlateId ?: " ",
-                                onClick = { footnotenumber ->
+                                onClick = { _ ->
                                     footNoteState.value = it.footnotesId!!
                                     scope.launch { scaffoldState.bottomSheetState.expand() }
                                 }
@@ -472,7 +555,26 @@ fun AyatScreens(
                             ) {
                                 Row(modifier = Modifier.align(Alignment.End)) {
                                     IconButton(
-                                        onClick = { /*TODO*/ }
+                                        onClick = {
+                                            playerClient.stop()
+                                            val formatSurahNumber =
+                                                Converters.convertNumberToThreeDigits(it.surahNumber!!)
+                                            val formatAyahNumber =
+                                                Converters.convertNumberToThreeDigits(it.ayatNumber!!)
+                                            val musicItem = createMusicItem(
+                                                title = "${it.surahNameEn}: ${it.ayatNumber}",
+                                                surahNumber = formatSurahNumber,
+                                                ayahNumber = formatAyahNumber
+                                            )
+                                            playerClient.connect { _ ->
+                                                Toast.makeText(context, "Play", Toast.LENGTH_SHORT)
+                                                    .show()
+                                                playerClient.playMode = PlayMode.SINGLE_ONCE
+                                                val qoriPlaylist =
+                                                    createSinglePlaylist(musicItem = musicItem)
+                                                playerClient.setPlaylist(qoriPlaylist!!, true)
+                                            }
+                                        }
                                     ) {
                                         Icon(
                                             painter = painterResource(id = R.drawable.baseline_play_circle_24),
@@ -503,7 +605,7 @@ fun AyatScreens(
                                         onClick = {
                                             val sendIntent: Intent = Intent().apply {
                                                 action = Intent.ACTION_SEND
-                                                putExtra(Intent.EXTRA_TEXT, "${it.ayatText}" )
+                                                putExtra(Intent.EXTRA_TEXT, "${it.ayatText}")
                                                 type = "text/plain"
                                             }
                                             val shareIntent = Intent.createChooser(sendIntent, null)
@@ -516,7 +618,7 @@ fun AyatScreens(
                                         )
                                     }
                                     IconButton(onClick = {
-                                        footNoteState.value = it.footnotesId!!
+                                        footNoteState.value = it.footnotesId.toString()
                                         scope.launch { scaffoldState.bottomSheetState.expand() }
                                     }) {
                                         Icon(
@@ -605,34 +707,69 @@ fun AyatScreens(
                                 Modifier
                                     .fillMaxWidth()
                                     .padding(8.dp),
-                                verticalAlignment = Alignment.CenterVertically
+                                horizontalArrangement = Arrangement.End
                             ) {
-                                Switch(
+                                Text(
                                     modifier = Modifier.align(Alignment.CenterVertically),
-                                    checked = GlobalState.isDarkMode,
-                                    onCheckedChange = { isChecked ->
-                                        GlobalState.isDarkMode = isChecked
-                                        SettingPreferences.isDarkMode = isChecked
-                                    },
-                                    thumbContent = if (GlobalState.isDarkMode) {
-                                        {
-                                            Icon(
-                                                imageVector = Icons.Filled.Check,
-                                                contentDescription = null,
-                                                modifier = Modifier.size(SwitchDefaults.IconSize),
-                                            )
-                                        }
-                                    } else {
-                                        null
-                                    }
+                                    text = "Change Qori"
                                 )
-                                Text(text = "Focus Mode", modifier = Modifier.padding(start = 8.dp))
+                                IconButton(onClick = {
+                                    showQoriDialog = true
+                                    showDialogSetting = false
+                                }, modifier = Modifier.fillMaxWidth()) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.baseline_open_in_new_24),
+                                        contentDescription = ""
+                                    )
+                                }
                             }
                         }
                     },
                     confirmButton = {
                         TextButton(onClick = { showDialogSetting = false }) {
                             Text("Close")
+                        }
+                    },
+                )
+            }
+            if (showQoriDialog) {
+                AlertDialog(
+                    modifier = Modifier.height(424.dp),
+                    onDismissRequest = { showQoriDialog = false },
+                    title = { Text(text = "Select Qori") },
+                    text = {
+                        LazyColumn {
+                            items(Qories.values()) { qories ->
+                                Row(
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .padding(8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    RadioButton(
+                                        selected = qories == GlobalState.isSelectedQori,
+                                        onClick = {
+                                            SettingPreferences.selectedQori = qories
+                                            GlobalState.isSelectedQori = qories
+                                        }
+                                    )
+                                    TextButton(onClick = {
+                                        SettingPreferences.selectedQori = qories
+                                        GlobalState.isSelectedQori = qories
+                                    }) {
+                                        Text(
+                                            text = qories.qoriName,
+                                            modifier = Modifier.padding(start = 8.dp)
+                                        )
+                                    }
+                                }
+                            }
+
+                        }
+                    },
+                    confirmButton = {
+                        TextButton(onClick = { showQoriDialog = false }) {
+                            Text("Apply")
                         }
                     },
                 )
@@ -739,7 +876,19 @@ private fun createMusicItem(
         .autoDuration()
         .setTitle(title)
         .setIconUri(SettingPreferences.selectedQori.qoriImage)
-        .setUri("https://everyayah.com/data/${SettingPreferences.selectedQori}/$surahNumber$ayahNumber.mp3")
+        .setUri("https://everyayah.com/data/${SettingPreferences.selectedQori.id}/${surahNumber}${ayahNumber}.mp3")
         .setArtist(SettingPreferences.selectedQori.qoriName)
         .build()
+}
+
+private fun createSinglePlaylist(
+    musicItem: MusicItem
+): Playlist? {
+    return Playlist.Builder().append(musicItem).build()
+}
+
+private fun createSurahPlaylist(
+    musicItem: MusicItem
+): Playlist? {
+    return Playlist.Builder().append(musicItem).build()
 }

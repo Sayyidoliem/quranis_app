@@ -10,4 +10,11 @@
     <color name="blue">#FF3842A1</color>
     
     <color name="white_background">#EAEBF4</color>
+
+    <color name="color_ghunna">#9c404e</color>
+    <color name="color_qalqala">#724d9f</color>
+    <color name="color_iqlab">#1b60a5</color>
+    <color name="color_idgham">#984061</color>
+    <color name="color_idghamwo">#984085</color>
+    <color name="color_ikhfa">#006d38</color>
 </resources>

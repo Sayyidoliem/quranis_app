@@ -13,7 +13,7 @@ data class Qoran(
     @ColumnInfo(name = "sora_name_en") val surahNameEn : String? = "",
     @ColumnInfo(name = "sora_name_ar") val surahNameAr : String? = "",
     @ColumnInfo(name = "page") val page : Int? = 0,
-    @ColumnInfo(name = "aya_no") val ayatNumber : Int? = 0,
+    @ColumnInfo(name = "aya_no") var ayatNumber : Int? = 0,
     @ColumnInfo(name = "aya_text") val ayatText : String? = "",
     @ColumnInfo(name = "aya_text_emlaey") val ayatTextEmlaey: String? = "",
     @ColumnInfo(name = "translation_id") val tranlateId : String? = "",
