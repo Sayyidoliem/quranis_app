@@ -5,9 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
@@ -48,6 +46,7 @@ import com.example.quranisapp.bottomscreens.BookmarkScreens
 import com.example.quranisapp.bottomscreens.DiscoverScreens
 import com.example.quranisapp.bottomscreens.HomeScreens
 import com.example.quranisapp.bottomscreens.SettingScreens
+import com.example.quranisapp.drawerscreens.AppInfoScreens
 import com.example.quranisapp.navigation.Screen
 import com.example.quranisapp.tabrowscreens.AyatScreens
 import kotlinx.coroutines.launch
@@ -99,10 +98,18 @@ fun MainActivity() {
                                         launchSingleTop = true
                                     }
                                 },
-                                icon = { Icon(painter = painterResource(id = item.icon), contentDescription = "") }
+                                icon = {
+                                    Icon(
+                                        painter = painterResource(id = item.icon),
+                                        contentDescription = ""
+                                    )
+                                }
                             )
                         }
-                        Divider(modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp), thickness = 1.dp)
+                        Divider(
+                            modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
+                            thickness = 1.dp
+                        )
                         secondaryNavItemList.map { item ->
                             NavigationDrawerItem(
                                 modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
@@ -117,7 +124,12 @@ fun MainActivity() {
                                         launchSingleTop = true
                                     }
                                 },
-                                icon = { Icon(painter = painterResource(id = item.icon), contentDescription = "") }
+                                icon = {
+                                    Icon(
+                                        painter = painterResource(id = item.icon),
+                                        contentDescription = ""
+                                    )
+                                }
                             )
                         }
                     }
@@ -130,44 +142,44 @@ fun MainActivity() {
                                 it.route == currentRoute
                             }
                         ) NavigationBar(
-                                modifier = Modifier.clip(
-                                    RoundedCornerShape(
-                                        topStart = 30.dp,
-                                        topEnd = 30.dp
-                                    )
+                            modifier = Modifier.clip(
+                                RoundedCornerShape(
+                                    topStart = 30.dp,
+                                    topEnd = 30.dp
                                 )
-                            ) {
-                                bottomNavItemList.map { item: BottomNavItem ->
-                                    NavigationBarItem(
-                                        selected = currentRoute == item.route,//untuk membandingkan index
-                                        onClick = {
-                                            currentRoute = item.route
-                                            navController.navigate(item.route) {
-                                                popUpTo(navController.graph.findStartDestination().id) {
-                                                    saveState =
-                                                        true //buat menyimpan state mutable di setiap screen
-                                                }
-                                                restoreState = true
-                                                launchSingleTop =
-                                                    true//buat klo back, langsung keluar app(bukan ke home)
+                            )
+                        ) {
+                            bottomNavItemList.map { item: BottomNavItem ->
+                                NavigationBarItem(
+                                    selected = currentRoute == item.route,//untuk membandingkan index
+                                    onClick = {
+                                        currentRoute = item.route
+                                        navController.navigate(item.route) {
+                                            popUpTo(navController.graph.findStartDestination().id) {
+                                                saveState =
+                                                    true //buat menyimpan state mutable di setiap screen
                                             }
-                                        },
-                                        icon = {
-                                            Icon(
-                                                imageVector = item.iconBottom,
-                                                contentDescription = item.label
-                                            )
-                                        },
-                                        label = { Text(text = item.label) },
-                                    )
-                                }
+                                            restoreState = true
+                                            launchSingleTop =
+                                                true//buat klo back, langsung keluar app(bukan ke home)
+                                        }
+                                    },
+                                    icon = {
+                                        Icon(
+                                            imageVector = item.iconBottom,
+                                            contentDescription = item.label
+                                        )
+                                    },
+                                    label = { Text(text = item.label) },
+                                )
                             }
+                        }
                     },
                 ) { innerPadding ->
                     NavHost(
                         modifier = Modifier.padding(innerPadding),
                         navController = navController,
-                        startDestination = "home"
+                        startDestination = Screen.Read.route
                     ) {
                         composable("home") {
                             HomeScreens(
@@ -176,11 +188,11 @@ fun MainActivity() {
                                 openDrawer = { scope.launch { navDrawerState.open() } }
                             )
                         }
-                        composable("prayer") {
-                            PrayerScreens(back = { navController.navigateUp() })
+                        composable(Screen.Prayer.route) {
+                            PrayerScreens(openDrawer = { scope.launch { navDrawerState.open() }})
                         }
-                        composable(Screen.Discover.route){
-                            DiscoverScreens()
+                        composable(Screen.Discover.route) {
+                            DiscoverScreens(openDrawer = { scope.launch { navDrawerState.open() } })
                         }
                         composable(Screen.Read.route) {
                             QuranScreens(
@@ -193,7 +205,7 @@ fun MainActivity() {
                                         )
                                     )
                                 },
-                                back = {navController.navigateUp()}
+                                openDrawer = { scope.launch { navDrawerState.open() } }
                             )
                         }
                         composable(Screen.Detail.route, arguments = listOf(
@@ -236,10 +248,13 @@ fun MainActivity() {
                             )
                         }
                         composable("setting") {
-                            SettingScreens(goToProfile = { navController.navigate("profile") })
+                            SettingScreens(openDrawer = {scope.launch { navDrawerState.open() } })
                         }
-                        composable("qiblat") {
-                            FindQiblat(back = { navController.navigateUp() })
+                        composable(Screen.Qiblat.route) {
+                            FindQiblat(openDrawer = { scope.launch { navDrawerState.open() } })
+                        }
+                        composable(Screen.Info.route) {
+                            AppInfoScreens(openDrawer = { scope.launch { navDrawerState.open() } })
                         }
                     }
                 }
@@ -252,28 +267,24 @@ data class BottomNavItem(
     val iconBottom: ImageVector,
     val route: String
 )
-
 val bottomNavItemList: List<BottomNavItem> = listOf(
-    BottomNavItem("Home", Icons.Default.Home, Screen.Home.route),
-    BottomNavItem("Discover", Icons.Default.Home, Screen.Discover.route),
-    BottomNavItem("Bookmarks", Icons.Default.Favorite, Screen.Bookmark.route),
-    BottomNavItem("Settings", Icons.Default.Settings, Screen.Setting.route)
+    BottomNavItem("Home", Icons.Default.Home, Screen.Read.route),
+    BottomNavItem("Qori", Icons.Default.Home, Screen.Discover.route),
 )
-
 data class NavItem(
     val route: String,
     val label: String,
     val icon: Int
 )
-
 val navigationdrawerList: List<NavItem> = listOf(
-    NavItem(Screen.Home.route, "Home", R.drawable.alarm),
-    NavItem(Screen.Read.route, "Read Quran", R.drawable.alarm),
-    NavItem(Screen.Setting.route, "Settings", R.drawable.alarm)
+    NavItem(Screen.Read.route, "Quran", R.drawable.baseline_home_24),
+    NavItem(Screen.Discover.route,"Qori", R.drawable.baseline_play_circle_24),
+    NavItem(Screen.Qiblat.route, "Qiblat Compass", R.drawable.baseline_navigation_24),
+    NavItem(Screen.Prayer.route, "Prayer Time", R.drawable.baseline_access_time_24),
+    NavItem(Screen.Setting.route, "Settings", R.drawable.baseline_settings_24)
 )
-
 val secondaryNavItemList: List<NavItem> = listOf(
-    NavItem("dowloaded", "Downloaded", R.drawable.alarm),
+    NavItem("dowloaded", "Downloaded", R.drawable.baseline_download_24),
     NavItem("a", "Downloaded", R.drawable.alarm),
-    NavItem("about", "App Info", R.drawable.alarm)
+    NavItem(Screen.Info.route, "App Info", R.drawable.baseline_info_24)
 )
