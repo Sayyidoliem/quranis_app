@@ -18,8 +18,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -65,7 +65,7 @@ import kotlinx.parcelize.Parcelize
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun PrayerScreens(
-    back: () -> Unit
+    openDrawer: () -> Unit
 ) {
     val context = LocalContext.current
 
@@ -115,16 +115,16 @@ fun PrayerScreens(
         topBar = {
             CenterAlignedTopAppBar(
                 navigationIcon = {
-                    IconButton(onClick = { back() }) {
+                    IconButton(onClick = { openDrawer() }) {
                         Icon(
-                            imageVector = Icons.Default.ArrowBack,
+                            imageVector = Icons.Default.Menu,
                             contentDescription = "",
                             tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
                 },
                 title = { Text(text = "Prayer Timings", color = MaterialTheme.colorScheme.onPrimary) },
-                colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary),
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.primary),
             )
         }
     ) {

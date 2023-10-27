@@ -16,9 +16,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,7 +31,6 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -49,7 +50,7 @@ import com.example.quranisapp.utils.GlobalState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingScreens(goToProfile: () -> Unit) {
+fun SettingScreens(openDrawer: () -> Unit) {
     var checked by remember { mutableStateOf(false) }
     var checked1 by remember { mutableStateOf(false) }
     var showQoriDialog by remember { mutableStateOf(false) }
@@ -58,19 +59,27 @@ fun SettingScreens(goToProfile: () -> Unit) {
     var selectedOption by remember { mutableStateOf(radioOptions[0]) }
     Scaffold(
         topBar = {
-            TopAppBar(
+            CenterAlignedTopAppBar(
                 title = { Text(text = "Settings", color = MaterialTheme.colorScheme.onPrimary) },
-                colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary),
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.primary),
                 actions = {
-                    IconButton(onClick = { goToProfile() }) {
+                    IconButton(onClick = {  }) {
                         Icon(
                             imageVector = Icons.Default.AccountCircle,
                             contentDescription = "",
                             tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
-
-                }
+                },
+                navigationIcon = {
+                    IconButton(onClick = { openDrawer() }) {
+                        Icon(
+                            imageVector = Icons.Default.Menu,
+                            contentDescription = "",
+                            tint = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
+                },
             )
         }
     ) {
