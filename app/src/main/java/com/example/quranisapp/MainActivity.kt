@@ -5,7 +5,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccessTimeFilled
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Navigation
+import androidx.compose.material.icons.filled.PlayCircle
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
@@ -23,11 +28,13 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -71,9 +78,11 @@ fun MainActivity() {
 
             val scope = rememberCoroutineScope()
 
+            var gestureEnable by remember { mutableStateOf(true) }
+
             ModalNavigationDrawer(
                 drawerState = navDrawerState,
-                gesturesEnabled = true,
+                gesturesEnabled = gestureEnable,
                 drawerContent = {
                     ModalDrawerSheet(drawerContainerColor = MaterialTheme.colorScheme.surface) {
                         Text(
@@ -100,7 +109,7 @@ fun MainActivity() {
                                 },
                                 icon = {
                                     Icon(
-                                        painter = painterResource(id = item.icon),
+                                        imageVector = item.icon,
                                         contentDescription = ""
                                     )
                                 }
@@ -126,7 +135,7 @@ fun MainActivity() {
                                 },
                                 icon = {
                                     Icon(
-                                        painter = painterResource(id = item.icon),
+                                        imageVector = item.icon,
                                         contentDescription = ""
                                     )
                                 }
@@ -274,17 +283,15 @@ val bottomNavItemList: List<BottomNavItem> = listOf(
 data class NavItem(
     val route: String,
     val label: String,
-    val icon: Int
+    val icon: ImageVector
 )
 val navigationdrawerList: List<NavItem> = listOf(
-    NavItem(Screen.Read.route, "Quran", R.drawable.baseline_home_24),
-    NavItem(Screen.Discover.route,"Qori", R.drawable.baseline_play_circle_24),
-    NavItem(Screen.Qiblat.route, "Qiblat Compass", R.drawable.baseline_navigation_24),
-    NavItem(Screen.Prayer.route, "Prayer Time", R.drawable.baseline_access_time_24),
-    NavItem(Screen.Setting.route, "Settings", R.drawable.baseline_settings_24)
+    NavItem(Screen.Read.route, "Quran", Icons.Default.Home),
+    NavItem(Screen.Discover.route,"Qori", Icons.Default.PlayCircle),
+    NavItem(Screen.Qiblat.route, "Qiblat Compass", Icons.Default.Navigation),
+    NavItem(Screen.Prayer.route, "Prayer Time", Icons.Default.AccessTimeFilled),
+    NavItem(Screen.Setting.route, "Settings", Icons.Default.Settings)
 )
 val secondaryNavItemList: List<NavItem> = listOf(
-    NavItem("dowloaded", "Downloaded", R.drawable.baseline_download_24),
-    NavItem("a", "Downloaded", R.drawable.alarm),
-    NavItem(Screen.Info.route, "App Info", R.drawable.baseline_info_24)
+    NavItem(Screen.Info.route, "App Info", Icons.Default.Info)
 )
