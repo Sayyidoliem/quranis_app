@@ -1,11 +1,9 @@
 package com.example.quranisapp.bottomscreens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,9 +15,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -39,11 +37,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.quranisapp.R
 import com.example.quranisapp.data.kotpref.Qories
 import com.example.quranisapp.data.kotpref.SettingPreferences
 import com.example.quranisapp.utils.GlobalState
@@ -63,7 +60,7 @@ fun SettingScreens(openDrawer: () -> Unit) {
                 title = { Text(text = "Settings", color = MaterialTheme.colorScheme.onPrimary) },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.primary),
                 actions = {
-                    IconButton(onClick = {  }) {
+                    IconButton(onClick = { }) {
                         Icon(
                             imageVector = Icons.Default.AccountCircle,
                             contentDescription = "",
@@ -92,11 +89,10 @@ fun SettingScreens(openDrawer: () -> Unit) {
             item {
                 Card(
                     Modifier
-                        .fillMaxSize(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
-                    )
+                        .fillMaxSize()
+                        .padding(16.dp)
                 ) {
+                    /*
                     Text(
                         text = "Notifications",
                         fontSize = 20.sp,
@@ -104,17 +100,17 @@ fun SettingScreens(openDrawer: () -> Unit) {
                         color = MaterialTheme.colorScheme.onBackground,
                         modifier = Modifier.padding(16.dp)
                     )
-                    Box(
+                    Row(
                         Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
                             text = "Email Notifications",
-                            modifier = Modifier.align(Alignment.CenterStart)
+                            modifier = Modifier.align(Alignment.CenterVertically)
                         )
                         Switch(
-                            modifier = Modifier.align(Alignment.CenterEnd),
                             checked = checked,
                             onCheckedChange = {
                                 checked = it
@@ -132,22 +128,22 @@ fun SettingScreens(openDrawer: () -> Unit) {
                             }
                         )
                     }
-                    Box(
+                    Row(
                         Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
                             text = "Push Notifications",
-                            modifier = Modifier.align(Alignment.CenterStart)
+                            modifier = Modifier.align(Alignment.CenterVertically)
                         )
                         Switch(
-                            modifier = Modifier.align(Alignment.CenterEnd),
-                            checked = checked1,
+                            checked = checked,
                             onCheckedChange = {
-                                checked1 = it
+                                checked = it
                             },
-                            thumbContent = if (checked1) {
+                            thumbContent = if (checked) {
                                 {
                                     Icon(
                                         imageVector = Icons.Filled.Check,
@@ -160,21 +156,25 @@ fun SettingScreens(openDrawer: () -> Unit) {
                             }
                         )
                     }
+                     */
                     Text(
                         text = "Theme",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground,
+                        color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(16.dp)
                     )
-                    Box(
+                    Row(
                         Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
+                            .padding(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(modifier = Modifier.align(Alignment.CenterStart), text = "Dark Mode")
+                        Text(
+                            modifier = Modifier.align(Alignment.CenterVertically),
+                            text = "Dark Mode"
+                        )
                         Switch(
-                            modifier = Modifier.align(Alignment.CenterEnd),
                             checked = GlobalState.isDarkMode,
                             onCheckedChange = { isChecked ->
                                 GlobalState.isDarkMode = isChecked
@@ -193,55 +193,53 @@ fun SettingScreens(openDrawer: () -> Unit) {
                             }
                         )
                     }
-                    Box(
+                    Row(
                         Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                            .padding(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(text = "Change Qori", modifier = Modifier.align(Alignment.CenterStart))
-                        Row(modifier = Modifier.align(Alignment.CenterEnd)) {
-                            IconButton(onClick = { showQoriDialog = true }) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.baseline_open_in_new_24),
-                                    contentDescription = ""
-                                )
-                            }
+                        Text(
+                            text = "Change Qori",
+                            modifier = Modifier.align(Alignment.CenterVertically)
+                        )
+                        IconButton(onClick = { showQoriDialog = true }) {
+                            Icon(
+                                imageVector = Icons.Default.OpenInNew,
+                                contentDescription = ""
+                            )
                         }
                     }
-                    Box(
+                    Row(
                         Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                            .padding(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
                             text = "Change Language",
-                            modifier = Modifier.align(Alignment.CenterStart)
+                            modifier = Modifier.align(Alignment.CenterVertically)
                         )
-                        IconButton(
-                            onClick = { showTranslateDialog = true },
-                            modifier = Modifier.align(Alignment.CenterEnd)
-                        ) {
-                            Image(
-                                painterResource(id = R.drawable.baseline_translate_24),
+                        IconButton(onClick = { showTranslateDialog = true }) {
+                            Icon(
+                                imageVector = Icons.Default.OpenInNew,
                                 contentDescription = "",
                             )
                         }
                     }
-                    Text(
-                        text = "Connected Account",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                    Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.bi_google),
-                            contentDescription = ""
+                    Row(verticalAlignment = Alignment.Bottom, modifier = Modifier.fillMaxSize()) {
+                        Text(
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .align(Alignment.Bottom)
+                                .fillMaxWidth(),
+                            text = "QURANIS",
+                            textAlign = TextAlign.Center,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = MaterialTheme.colorScheme.primary
                         )
-                        Text(modifier = Modifier.padding(start = 16.dp), text = "Google")
                     }
-                    Spacer(modifier = Modifier.padding(8.dp))
                 }
             }
         }
