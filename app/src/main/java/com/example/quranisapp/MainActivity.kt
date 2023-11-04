@@ -3,9 +3,11 @@ package com.example.quranisapp
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTimeFilled
+import androidx.compose.material.icons.filled.Feedback
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Navigation
@@ -82,64 +84,68 @@ fun MainActivity() {
 
             ModalNavigationDrawer(
                 drawerState = navDrawerState,
-                gesturesEnabled = gestureEnable,
+                gesturesEnabled =  (currentRoute != Screen.Detail.route) ,
                 drawerContent = {
                     ModalDrawerSheet(drawerContainerColor = MaterialTheme.colorScheme.surface) {
-                        Text(
-                            modifier = Modifier.padding(start = 24.dp, top = 24.dp, bottom = 16.dp),
-                            text = "QURANIS",
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        navigationdrawerList.map { item ->
-                            NavigationDrawerItem(
-                                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
-                                label = { Text(text = item.label) },
-                                selected = currentDestination == item.route,
-                                onClick = {
-                                    currentDestination = item.route
-                                    navController.navigate(item.route) {
-                                        popUpTo(navController.graph.findStartDestination().id) {
-                                            saveState = true
+                        LazyColumn{
+                            item {
+                                Text(
+                                    modifier = Modifier.padding(start = 24.dp, top = 24.dp, bottom = 16.dp),
+                                    text = "QURANIS",
+                                    fontSize = 24.sp,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                navigationdrawerList.map { item ->
+                                    NavigationDrawerItem(
+                                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+                                        label = { Text(text = item.label) },
+                                        selected = currentDestination == item.route,
+                                        onClick = {
+                                            currentDestination = item.route
+                                            navController.navigate(item.route) {
+                                                popUpTo(navController.graph.findStartDestination().id) {
+                                                    saveState = true
+                                                }
+                                                restoreState = true
+                                                launchSingleTop = true
+                                            }
+                                        },
+                                        icon = {
+                                            Icon(
+                                                imageVector = item.icon,
+                                                contentDescription = ""
+                                            )
                                         }
-                                        restoreState = true
-                                        launchSingleTop = true
-                                    }
-                                },
-                                icon = {
-                                    Icon(
-                                        imageVector = item.icon,
-                                        contentDescription = ""
                                     )
                                 }
-                            )
-                        }
-                        Divider(
-                            modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
-                            thickness = 1.dp
-                        )
-                        secondaryNavItemList.map { item ->
-                            NavigationDrawerItem(
-                                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
-                                label = { Text(text = item.label) },
-                                selected = currentDestination == item.route,
-                                onClick = {
-                                    navController.navigate(item.route) {
-                                        popUpTo(navController.graph.findStartDestination().id) {
-                                            saveState = true
+                                Divider(
+                                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
+                                    thickness = 1.dp
+                                )
+                                secondaryNavItemList.map { item ->
+                                    NavigationDrawerItem(
+                                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+                                        label = { Text(text = item.label) },
+                                        selected = currentDestination == item.route,
+                                        onClick = {
+                                            navController.navigate(item.route) {
+                                                popUpTo(navController.graph.findStartDestination().id) {
+                                                    saveState = true
+                                                }
+                                                restoreState = true
+                                                launchSingleTop = true
+                                            }
+                                        },
+                                        icon = {
+                                            Icon(
+                                                imageVector = item.icon,
+                                                contentDescription = ""
+                                            )
                                         }
-                                        restoreState = true
-                                        launchSingleTop = true
-                                    }
-                                },
-                                icon = {
-                                    Icon(
-                                        imageVector = item.icon,
-                                        contentDescription = ""
                                     )
                                 }
-                            )
+                            }
                         }
                     }
                 }
@@ -265,6 +271,9 @@ fun MainActivity() {
                         composable(Screen.Info.route) {
                             AppInfoScreens(openDrawer = { scope.launch { navDrawerState.open() } })
                         }
+                        composable(Screen.Feedback.route){
+                            FeedbackScreens(openDrawer = { scope.launch { navDrawerState.open() } })
+                        }
                     }
                 }
             }
@@ -278,7 +287,7 @@ data class BottomNavItem(
 )
 val bottomNavItemList: List<BottomNavItem> = listOf(
     BottomNavItem("Home", Icons.Default.Home, Screen.Read.route),
-    BottomNavItem("Qori", Icons.Default.Home, Screen.Discover.route),
+    BottomNavItem("Qori", Icons.Default.PlayCircle, Screen.Discover.route),
 )
 data class NavItem(
     val route: String,
@@ -287,11 +296,11 @@ data class NavItem(
 )
 val navigationdrawerList: List<NavItem> = listOf(
     NavItem(Screen.Read.route, "Quran", Icons.Default.Home),
-    NavItem(Screen.Discover.route,"Qori", Icons.Default.PlayCircle),
     NavItem(Screen.Qiblat.route, "Qiblat Compass", Icons.Default.Navigation),
     NavItem(Screen.Prayer.route, "Prayer Time", Icons.Default.AccessTimeFilled),
     NavItem(Screen.Setting.route, "Settings", Icons.Default.Settings)
 )
 val secondaryNavItemList: List<NavItem> = listOf(
+    NavItem(Screen.Feedback.route, "Feedback", Icons.Default.Feedback),
     NavItem(Screen.Info.route, "App Info", Icons.Default.Info)
 )
