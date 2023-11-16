@@ -1,4 +1,4 @@
-package com.example.quranisapp.Screen
+package com.example.quranisapp.screen
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -12,11 +12,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.DockedSearchBar
@@ -25,8 +23,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
@@ -41,22 +37,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.compose.QURANISAppTheme
-import com.example.quranisapp.bottomscreens.BookmarkScreens
 import com.example.quranisapp.data.database.QoranDatabase
 import com.example.quranisapp.data.database.SurahSearch
-import com.example.quranisapp.navigation.Screen
-import com.example.quranisapp.tabrowscreens.JuzScreens
-import com.example.quranisapp.tabrowscreens.PageScreens
-import com.example.quranisapp.tabrowscreens.SurahScreens
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -64,7 +52,7 @@ import kotlinx.coroutines.launch
 @ExperimentalMaterial3Api
 @Composable
 fun QuranScreens(
-    goToRead: (surahNumber: Int?, juzNumber: Int?, pageNumber: Int?) -> Unit,
+    goToRead: (surahNumber: Int?, juzNumber: Int?, pageNumber: Int?, index : Int?) -> Unit,
     openDrawer: () -> Unit,
 ) {
     QURANISAppTheme {
@@ -82,7 +70,6 @@ fun QuranScreens(
             val navController: NavHostController = rememberNavController()
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             var currentRoute: String? = navBackStackEntry?.destination?.route
-            var currentDestination = navBackStackEntry?.destination?.route
 
             var textSearchBar by rememberSaveable { mutableStateOf("") }
             var searchBar by rememberSaveable { mutableStateOf(false) }
@@ -93,6 +80,7 @@ fun QuranScreens(
             }
 
             Scaffold(
+                /*
                 bottomBar = {
                     if (bottomNavItemList.any {
                             it.route == currentRoute
@@ -123,6 +111,7 @@ fun QuranScreens(
                         }
                     }
                 },
+                 */
             ) { it ->
                 Column(
                     Modifier
@@ -181,18 +170,17 @@ fun QuranScreens(
                     ) {
                         LazyColumn {
                             items(searchResult) {
-                                val resultText = "${it.surahNameEmlay}"
                                 ListItem(
-                                    headlineContent = { Text(resultText) },
-                                    supportingContent = { Text("${it.numberOfAyah} Ayat || ${it.surahDescendPlace}") },
+                                    headlineContent = { Text("${it.surahNameEmlay} | ${it.ayatNameEmlay}", maxLines = 1) },
+                                    supportingContent = { Text("Juz ${it.juzNumber} | ${it.surahDescendPlace}",maxLines = 1) },
                                     leadingContent = {
                                         Text(text = "${it.surahNumber}")
                                     },
                                     modifier = Modifier
                                         .clickable {
-                                            textSearchBar = resultText
+                                            textSearchBar = "${it.surahNameEmlay}"
                                             searchBar = false
-                                            goToRead.invoke(it.surahNumber, null, null)
+                                            goToRead.invoke(it.surahNumber, null, null, null)
                                         }
                                         .fillMaxWidth()
                                         .padding(horizontal = 16.dp, vertical = 4.dp)
@@ -200,6 +188,7 @@ fun QuranScreens(
                             }
                         }
                     }
+
                     TabRow(
                         selectedTabIndex = pageState.currentPage,
                         modifier = Modifier.fillMaxWidth()
@@ -250,29 +239,31 @@ fun QuranScreens(
         }
     }
 }
+//Fitur Qori per playlist
 
-fun bottomNavigate(
-    navController: NavHostController,
-    route: String
-) {
-    navController.navigate(route) {
-        popUpTo(navController.graph.findStartDestination().id) {
-            saveState =
-                true //buat menyimpan state mutable di setiap screen
-        }
-        restoreState = true
-        launchSingleTop =
-            true//buat klo back, langsung keluar app(bukan ke home)
-    }
-}
-
-data class BottomNavItem(
-    val label: String,
-    val iconBottom: ImageVector,
-    val route: String
-)
-
-val bottomNavItemList: List<BottomNavItem> = listOf(
-    BottomNavItem("Home", Icons.Default.Home, Screen.Read.route),
-    BottomNavItem("Qori", Icons.Default.Home, Screen.Discover.route),
-)
+//
+//fun bottomNavigate(
+//    navController: NavHostController,
+//    route: String
+//) {
+//    navController.navigate(route) {
+//        popUpTo(navController.graph.findStartDestination().id) {
+//            saveState =
+//                true //buat menyimpan state mutable di setiap screen
+//        }
+//        restoreState = true
+//        launchSingleTop =
+//            true//buat klo back, langsung keluar app(bukan ke home)
+//    }
+//}
+//
+//data class BottomNavItem(
+//    val label: String,
+//    val iconBottom: ImageVector,
+//    val route: String
+//)
+//
+//val bottomNavItemList: List<BottomNavItem> = listOf(
+//    BottomNavItem("Home", Icons.Default.Home, Screen.Read.route),
+//    BottomNavItem("Qori", Icons.Default.Home, Screen.Discover.route),
+//)
