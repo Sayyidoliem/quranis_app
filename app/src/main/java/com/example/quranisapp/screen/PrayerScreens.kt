@@ -1,32 +1,26 @@
-package com.example.quranisapp.Screen
+package com.example.quranisapp.screen
 
 import android.Manifest
 import android.location.Geocoder
 import android.location.Location
 import android.os.Parcelable
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -40,16 +34,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.quranisapp.R
 import com.example.quranisapp.service.ApiInterface
 import com.example.quranisapp.service.api.Time
 import com.example.quranisapp.service.location.LocationService
@@ -58,9 +49,14 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionsRequired
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.android.gms.location.LocationServices
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
+import java.text.SimpleDateFormat
+import java.util.Locale
+
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
@@ -123,17 +119,22 @@ fun PrayerScreens(
                         )
                     }
                 },
-                title = { Text(text = "Prayer Timings", color = MaterialTheme.colorScheme.onPrimary) },
+                title = {
+                    Text(
+                        text = "Prayer Timings",
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.primary),
             )
         }
     ) {
         LazyColumn(
-            Modifier
+            modifier = Modifier
+                .padding(16.dp)
                 .padding(it)
-                .background(MaterialTheme.colorScheme.background)
+                .fillMaxWidth()
         ) {
-            //next prayer
             item {
                 Spacer(modifier = Modifier.padding(top = 16.dp))
                 PermissionsRequired(
@@ -154,11 +155,11 @@ fun PrayerScreens(
                             }
 
                             is LocationServiceCondition.MissingPermission -> {
-                                cityLocation = "Missing location"
+                                cityLocation = "Please Enabled your permission"
                             }
 
                             is LocationServiceCondition.NoGps -> {
-                                cityLocation = "Gps Not Activated"
+                                cityLocation = "Please activated your GPS"
                             }
 
                             is LocationServiceCondition.Success -> {
@@ -191,9 +192,9 @@ fun PrayerScreens(
                                     "Isya"
                                 )
 
-                                if (prayerTime.isNotEmpty()){
+                                if (prayerTime.isNotEmpty()) {
                                     timeSholatButton.clear()
-                                    for (i in listJudulSholat.indices){
+                                    for (i in listJudulSholat.indices) {
                                         val dataJadwalSholat = ItemTimePrayer(
                                             listJudulSholat[i],
                                             listOf(
@@ -215,151 +216,46 @@ fun PrayerScreens(
                         }
                     }
                 }
-                Card(
+
+                val dateFlow = getTime().collectAsState(initial = "")
+                Text(
+                    text = dateFlow.value,
+                    fontSize = 42.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = MaterialTheme.colorScheme.surfaceTint,
+                    textAlign = TextAlign.Center,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                        .clip(RoundedCornerShape(10))
-                        .clickable { },
-                    elevation = CardDefaults.cardElevation(
-                        defaultElevation = 16.dp
-                    ),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer
-                    )
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Column(
-                            modifier = Modifier
-                                .padding(vertical = 30.dp)
-                                .padding(start = 20.dp)
-                        ) {
-                            Text(text = "Next Prayer", fontSize = 20.sp, color = MaterialTheme.colorScheme.onPrimaryContainer)
-                            Text(
-                                text = "11.30",
-                                fontSize = 32.sp,
-                                fontWeight = FontWeight.ExtraBold,
-                                color = MaterialTheme.colorScheme.surfaceTint
-                            )
-                            when {
-                                prayerTime.isNotEmpty() -> {
-                                    Spacer(modifier = Modifier.size(20.dp))
-                                    Text(text = "${prayerTime[0]?.gregorian}", fontSize = 20.sp)
-                                    Spacer(modifier = Modifier.size(20.dp))
-                                    Text(
-                                        modifier = Modifier.width(160.dp),
-                                        text = "$cityLocation, $provinceLocation",
-                                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                        fontSize = 20.sp
-                                    )
-                                }
-                                else -> {
-                                    Spacer(modifier = Modifier.size(20.dp))
-                                    Text(
-                                        modifier = Modifier.width(160.dp),
-                                        text = cityLocation,
-                                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                        fontSize = 20.sp
-                                    )
-                                }
-                            }
-                        }
-                        Image(
-                            painter = painterResource(id = R.drawable.ic_launcher_background),
-                            contentDescription = "",
-                            Modifier
-                                .weight(9f / 16f, fill = false)
-                                .fillMaxWidth()
+                )
+                when {
+                    prayerTime.isNotEmpty() -> {
+                        Spacer(modifier = Modifier.size(20.dp))
+                        Text(text = "Date : ${prayerTime[0]?.gregorian}", fontSize = 20.sp)
+                        Spacer(modifier = Modifier.size(20.dp))
+                        Text(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = "$cityLocation, \n$provinceLocation",
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.ExtraBold
                         )
+                        Spacer(modifier = Modifier.size(20.dp))
                     }
-                    LazyRow(Modifier.padding(horizontal = 8.dp)) {
-                        item {
-                            timeSholatButton.forEach {
-                                Button(
-                                    onClick = { /*TODO*/ }, modifier = Modifier
-                                        .padding(8.dp)
-                                ) {
-                                    Text(
-                                        text = "${it.waktuSholat} : ${it.judulSholat}"
-                                    )
-                                }
-                            }
-                        }
+
+                    else -> {
+                        Spacer(modifier = Modifier.size(20.dp))
+                        LinearProgressIndicator(Modifier.fillMaxWidth())
                     }
                 }
-            }
-            //read hadist
-            item {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                        .clip(RoundedCornerShape(10)),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer
-                    )
-                ) {
-                    Column(
+                timeSholatButton.forEach { item ->
+                    ItemCardPrayer(
                         modifier = Modifier
-                            .padding(vertical = 30.dp, horizontal = 20.dp)
-                    ) {
-                        Text(
-                            text = "Studying Hadist",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = colorResource(id = R.color.blue)
-                        )
-                        Spacer(modifier = Modifier.padding(8.dp))
-                        Button(
-                            onClick = { /*TODO*/ }, modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(4.dp)
-                        ) {
-                            Icon(imageVector = Icons.Default.Done, contentDescription = "")
-                            Text(text = "Hadist", modifier = Modifier.padding(start = 16.dp))
-                        }
-                        Button(
-                            onClick = { /*TODO*/ }, modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(4.dp)
-                        ) {
-                            Text(text = "Hadist", modifier = Modifier.padding(start = 16.dp))
-                        }
-                        Button(
-                            onClick = { /*TODO*/ }, modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(4.dp)
-                        ) {
-                            Text(text = "Hadist", modifier = Modifier.padding(start = 16.dp))
-                        }
-                        Button(
-                            onClick = { /*TODO*/ }, modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(4.dp)
-                        ) {
-                            Text(text = "Hadist", modifier = Modifier.padding(start = 16.dp))
-                        }
-                        Button(
-                            onClick = { /*TODO*/ }, modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(4.dp)
-                        ) {
-                            Text(text = "Hadist", modifier = Modifier.padding(start = 16.dp))
-                        }
-                        Spacer(modifier = Modifier.padding(8.dp))
-                        Row {
-                            Text(
-                                text = "Last Check:  ",
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                            Text(
-                                text = "9.03.2023",
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                        }
-                    }
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                            .clip(shape = RoundedCornerShape(10.dp)),
+                        titleSholat = item.judulSholat,
+                        timesholat = item.waktuSholat
+                    )
                 }
             }
         }
@@ -368,6 +264,121 @@ fun PrayerScreens(
 
 @Parcelize
 data class ItemTimePrayer(
-    val waktuSholat : String,
-    val judulSholat : String
+    val waktuSholat: String,
+    val judulSholat: String
 ) : Parcelable
+
+@Composable
+fun ItemCardPrayer(
+    modifier: Modifier = Modifier,
+    titleSholat: String,
+    timesholat: String
+) {
+    Card(
+        modifier = modifier,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.tertiaryContainer
+        )
+    ) {
+        Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+            Text(
+                text = timesholat,
+                modifier = Modifier.padding(12.dp),
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = titleSholat,
+                modifier = Modifier.padding(12.dp),
+                fontWeight = FontWeight.Bold
+            )
+        }
+
+    }
+}
+
+private fun getTime() = flow {
+    while (true) {
+        val date = SimpleDateFormat(
+            "HH:mm:ss",
+            Locale.getDefault()
+        ).format(System.currentTimeMillis())
+        emit(date)
+        delay(1000)
+    }
+}
+//read hadist
+/*
+item {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+            .clip(RoundedCornerShape(10)),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(vertical = 30.dp, horizontal = 20.dp)
+        ) {
+            Text(
+                text = "Studying Hadist",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = colorResource(id = R.color.blue)
+            )
+            Spacer(modifier = Modifier.padding(8.dp))
+            Button(
+                onClick = { /*TODO*/ }, modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(4.dp)
+            ) {
+                Icon(imageVector = Icons.Default.Done, contentDescription = "")
+                Text(text = "Hadist", modifier = Modifier.padding(start = 16.dp))
+            }
+            Button(
+                onClick = { /*TODO*/ }, modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(4.dp)
+            ) {
+                Text(text = "Hadist", modifier = Modifier.padding(start = 16.dp))
+            }
+            Button(
+                onClick = { /*TODO*/ }, modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(4.dp)
+            ) {
+                Text(text = "Hadist", modifier = Modifier.padding(start = 16.dp))
+            }
+            Button(
+                onClick = { /*TODO*/ }, modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(4.dp)
+            ) {
+                Text(text = "Hadist", modifier = Modifier.padding(start = 16.dp))
+            }
+            Button(
+                onClick = { /*TODO*/ }, modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(4.dp)
+            ) {
+                Text(text = "Hadist", modifier = Modifier.padding(start = 16.dp))
+            }
+            Spacer(modifier = Modifier.padding(8.dp))
+            Row {
+                Text(
+                    text = "Last Check:  ",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    text = "9.03.2023",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+        }
+    }
+}
+ */
