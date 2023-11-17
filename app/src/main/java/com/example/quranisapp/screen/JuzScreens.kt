@@ -1,4 +1,4 @@
-package com.example.quranisapp.tabrowscreens
+package com.example.quranisapp.screen
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
@@ -41,7 +41,7 @@ import com.example.quranisapp.utils.Converters.mapToJuzIndexing
 @Composable
 fun JuzScreens(
     modifier: Modifier = Modifier,
-    goToRead: (surahNumber: Int?, juzNumber: Int?, pageNumber: Int?) -> Unit
+    goToRead: (surahNumber: Int?, juzNumber: Int?, pageNumber: Int?, index: Int?) -> Unit
 ) {
     val context = LocalContext.current
     val dao = QoranDatabase.getInstance(context).dao()
@@ -60,7 +60,7 @@ fun JuzScreens(
                     surahList = juzMap.surahList,
                     surahNumberList = juzMap.surahNumberList,
                     goToRead = { surahNumber ->
-                        goToRead(surahNumber, juzMap.juzNumber, null)
+                        goToRead(surahNumber, juzMap.juzNumber, null, null)
                     }
                 )
             }

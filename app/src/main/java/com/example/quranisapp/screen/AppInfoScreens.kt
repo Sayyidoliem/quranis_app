@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.quranisapp.BuildConfig
 import com.example.quranisapp.R
+import com.example.quranisapp.data.kotpref.SettingPreferences
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,7 +36,17 @@ fun AppInfoScreens(openDrawer: () -> Unit) {
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    Text(text = "App Info")
+                    Text(
+                        text = when (SettingPreferences.isSelectedLanguage) {
+                            SettingPreferences.INDONESIA -> {
+                                "Info Aplikasi"
+                            }
+
+                            else -> {
+                                "App Info"
+                            }
+                        },
+                    )
                 },
                 navigationIcon = {
                     IconButton(onClick = { openDrawer() }) {
@@ -69,8 +80,28 @@ fun AppInfoScreens(openDrawer: () -> Unit) {
                 fontWeight = FontWeight.ExtraBold,
                 color = MaterialTheme.colorScheme.primary
             )
-            Text(text = "Version $versionApp")
-            Text(text = " SDK Version : $sdkVersion")
+            Text(
+                text = when (SettingPreferences.isSelectedLanguage) {
+                    SettingPreferences.INDONESIA -> {
+                        "Versi $versionApp"
+                    }
+
+                    else -> {
+                        "Version $versionApp"
+                    }
+                }
+            )
+            Text(
+                text = when (SettingPreferences.isSelectedLanguage) {
+                    SettingPreferences.INDONESIA -> {
+                        "Versi SDK : $sdkVersion "
+                    }
+
+                    else -> {
+                        "SDK Version : $sdkVersion"
+                    }
+                }
+            )
         }
     }
 }

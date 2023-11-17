@@ -17,10 +17,13 @@ interface BookmarkDao {
     suspend fun insertBookmark(bookmark: Bookmark)
 
     @Delete
-    suspend fun  deleteBookmark(bookmark: Bookmark)
+    suspend fun deleteBookmark(bookmark: Bookmark)
 
     @Query("DELETE FROM bookmark")
     suspend fun deleteAllFromBookmark()
+
+    @Query("SELECT EXISTS(SELECT * FROM bookmark WHERE ayahNumber = :ayahNumber)")
+    suspend fun selectedAyatFavoriteButton(ayahNumber: Int) : Boolean
 
     @Query("SELECT * FROM surahBookmark")
     fun getSurahBookmark():Flow<List<SurahBookmark>>
@@ -36,4 +39,5 @@ interface BookmarkDao {
 
     @Query("SELECT EXISTS(SELECT * FROM surahBookmark WHERE surahNumber = :surahNumber)")
     suspend fun selectedFavoriteButton(surahNumber: Int) : Boolean
+
 }

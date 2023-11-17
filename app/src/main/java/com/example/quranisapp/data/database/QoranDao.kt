@@ -34,7 +34,6 @@ interface QoranDao {
 
     @Query("SELECT * FROM SurahSearch where sora_name_emlaey like '%'|| :soraNameEmlay || '%' OR aya_text_emlaey like '%'|| :soraNameEmlay || '%'")
     fun getSurahBySearch(soraNameEmlay:String):Flow<List<SurahSearch>>
-
-//    @Query("SELECT * FROM AyatSearch where aya_name_emlaey like '%'|| :ayatNameEmlay || '%'")
-//    fun getAyatBySearch(ayatNameEmlay:String):Flow<List<SurahSearch>>
+    @Query("SELECT * FROM AyatSearch where aya_text_emlaey like '%'|| :ayatNameEmlay || '%' OR translation_en like '%'|| :ayatNameEmlay || '%' OR aya_text like '%'|| :ayatNameEmlay || '%'")
+    fun getAyatBySearch(ayatNameEmlay:String):Flow<List<AyatSearch>>
 }

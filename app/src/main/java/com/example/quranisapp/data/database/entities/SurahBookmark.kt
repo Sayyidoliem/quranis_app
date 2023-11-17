@@ -11,6 +11,5 @@ data class SurahBookmark(
     val totalAyah : Int? = 0,
     val juzNumber : Int? = 0,
     val surahDescend : String? = "",
-    val surahNumber : Int? = 0,
-    @PrimaryKey(autoGenerate = true)val id: Int? = null,
+    @PrimaryKey val surahNumber : Int? = 0,
 )

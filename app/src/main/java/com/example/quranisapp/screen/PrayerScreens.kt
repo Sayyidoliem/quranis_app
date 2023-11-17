@@ -245,6 +245,8 @@ fun PrayerScreens(
                             null -> {
                                 cityLocation = "Location error"
                             }
+
+                            else -> {}
                         }
                     }
                 }

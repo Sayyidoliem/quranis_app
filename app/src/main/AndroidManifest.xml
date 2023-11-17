@@ -34,7 +34,7 @@
         android:theme="@style/Theme.QURANISApp"
         tools:targetApi="31">
         <activity
-            android:name=".SplashActivity"
+            android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.QURANISApp">
@@ -47,7 +47,8 @@
         <service
             android:name=".service.player.MyPlayerServices"
             android:exported="true"
-            android:foregroundServiceType="mediaPlayback">
+            android:foregroundServiceType="mediaPlayback"
+            android:permission="TODO">
             <intent-filter>
                 <action android:name="android.media.browse.MediaBrowserService" />
             </intent-filter>
@@ -60,6 +61,4 @@
             </intent-filter>
         </receiver>
     </application>
-
-
 </manifest>

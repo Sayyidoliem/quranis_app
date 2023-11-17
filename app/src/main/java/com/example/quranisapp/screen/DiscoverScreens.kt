@@ -1,6 +1,5 @@
-package com.example.quranisapp.bottomscreens
+package com.example.quranisapp.screen
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -13,8 +12,10 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bookmarks
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -35,14 +36,17 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.compose.QURANISAppTheme
-import com.example.quranisapp.R
 import com.example.quranisapp.data.kotpref.Qories
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -109,7 +113,7 @@ fun DiscoverScreens(openDrawer: () -> Unit) {
                                 modifier = Modifier.padding(vertical = 8.dp)
                             ) {
                                 Icon(
-                                    painter = painterResource(id = R.drawable.baseline_bookmarks_24),
+                                    imageVector = Icons.Default.Bookmarks,
                                     contentDescription = null
                                 )
                             }
@@ -122,7 +126,7 @@ fun DiscoverScreens(openDrawer: () -> Unit) {
                     ) {
                         items(Qories.values()) { Qories ->
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                CardVideo(modifier = Modifier.clickable {  },Qories.qoriName)
+                                CardVideo(modifier = Modifier.clickable {  },Qories.qoriName, Qories.qoriImage)
                             }
                         }
                     }
@@ -136,19 +140,18 @@ fun DiscoverScreens(openDrawer: () -> Unit) {
 fun CardVideo(
     modifier: Modifier,
     name: String,
+    image : String
 ) {
     var expanded by remember {
         mutableStateOf(false)
     }
     Card(modifier = Modifier.padding(16.dp)) {
         Box(Modifier.fillMaxSize()) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_launcher_background),
+            AsyncImage(
+                model = image,
                 contentDescription = null,
                 contentScale = ContentScale.FillWidth,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clickable { }
+                modifier = Modifier.fillMaxSize().clickable { }
             )
             Text(
                 text = name,
@@ -157,7 +160,15 @@ fun CardVideo(
                     .padding(16.dp),
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp,
-                color = Color.LightGray
+//                color = Color.LightGray,
+                style = TextStyle(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(Color.Gray, Color.DarkGray)
+                    ),
+                    shadow = Shadow(
+                        color = Color.Gray, offset = Offset(5.0f, 10.0f), blurRadius = 3f
+                    )
+                )
             )
             Icon(
                 imageVector = Icons.Default.MoreVert,
@@ -179,7 +190,7 @@ fun CardVideo(
                     },
                     leadingIcon = {
                         Icon(
-                            painter = painterResource(id = R.drawable.baseline_translate_24),
+                            imageVector = Icons.Default.Translate,
                             contentDescription = null
                         )
                     }

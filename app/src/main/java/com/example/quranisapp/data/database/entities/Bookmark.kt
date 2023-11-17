@@ -9,5 +9,5 @@ data class Bookmark(
     val ayahNumber: Int? = 0,
     val surahNumber: Int? = 0,
     @PrimaryKey(autoGenerate = true)val id: Int? = null,
-    val createAt : Long = System.currentTimeMillis()
+    val createAt : Long = System.currentTimeMillis(),
 )

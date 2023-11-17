@@ -1,4 +1,4 @@
-//package com.example.quranisapp.tabrowscreens
+package com.example.quranisapp.screen//package com.example.quranisapp.tabrowscreens
 //
 //import androidx.compose.foundation.clickable
 //import androidx.compose.foundation.layout.Box

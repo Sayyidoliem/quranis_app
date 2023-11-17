@@ -1,6 +1,5 @@
 package com.example.quranisapp.service.api
 
-
 import com.google.gson.annotations.SerializedName
 
 data class GetSholatTime(

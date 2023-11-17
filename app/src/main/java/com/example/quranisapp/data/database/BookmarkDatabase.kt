@@ -9,10 +9,10 @@ import com.example.quranisapp.data.database.entities.SurahBookmark
 
 @Database(
     entities = [Bookmark::class,SurahBookmark::class],
-    version = 1
+    version = 2
 )
 abstract class BookmarkDatabase : RoomDatabase() {
-    abstract fun dao(): BookmarkDao
+    abstract fun bookmarkDao(): BookmarkDao
 
     companion object {
         @Volatile

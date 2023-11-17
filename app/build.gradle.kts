@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.quranisapp"
-        minSdk = 30
+        minSdk = 28
         targetSdk = 33
         versionCode = 1
         versionName = "1.0"
@@ -41,6 +41,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.4.3"
@@ -111,5 +112,14 @@ dependencies {
     implementation ("com.chibatching.kotpref:enum-support:2.13.1")
 
     //media player
-    implementation ("com.github.jrfeng.snow:player:1.2")
+    implementation ("com.github.jrfeng.snow:player:1.2.13")
+
+    //nambahin vector icon klo pake Icons
+    implementation ("androidx.compose.material:material-icons-extended:1.5.4")
+
+    //buat asynchronus image
+    implementation("io.coil-kt:coil-compose:2.5.0")
+
+    //buat animasi
+    implementation ("com.airbnb.android:lottie-compose:6.1.0")
 }
