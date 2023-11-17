@@ -41,6 +41,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.quranisapp.data.kotpref.SettingPreferences
 import com.example.quranisapp.service.ApiInterface
 import com.example.quranisapp.service.api.Time
 import com.example.quranisapp.service.location.LocationService
@@ -121,7 +122,15 @@ fun PrayerScreens(
                 },
                 title = {
                     Text(
-                        text = "Prayer Timings",
+                        text = when (SettingPreferences.isSelectedLanguage) {
+                            SettingPreferences.INDONESIA -> {
+                                "Jadwal Ibadah"
+                            }
+
+                            else -> {
+                                "Prayer Timings"
+                            }
+                        },
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                 },
@@ -151,20 +160,43 @@ fun PrayerScreens(
                     locationState.collectAsState().let { state ->
                         when (val locationCondition = state.value) {
                             is LocationServiceCondition.Error -> {
-                                cityLocation = "Location error"
+                                cityLocation =when (SettingPreferences.isSelectedLanguage) {
+                                    SettingPreferences.INDONESIA -> {
+                                        "Lokasi bermasalah"
+                                    }
+
+                                    else -> {
+                                        "Location Error"
+                                    }
+                                }
                             }
 
                             is LocationServiceCondition.MissingPermission -> {
-                                cityLocation = "Please Enabled your permission"
+                                cityLocation = when (SettingPreferences.isSelectedLanguage) {
+                                    SettingPreferences.INDONESIA -> {
+                                        "Dimohon untuk aktifkan izin "
+                                    }
+
+                                    else -> {
+                                        "Please Enabled your permission"
+                                    }
+                                }
                             }
 
                             is LocationServiceCondition.NoGps -> {
-                                cityLocation = "Please activated your GPS"
+                                cityLocation = when (SettingPreferences.isSelectedLanguage) {
+                                    SettingPreferences.INDONESIA -> {
+                                        "Dimohon untuk aktifkan GPS anda "
+                                    }
+
+                                    else -> {
+                                        "Please activated your GPS"
+                                    }
+                                }
                             }
 
                             is LocationServiceCondition.Success -> {
                                 val location = locationCondition.location
-
                                 scope.launch {
                                     val result = api.getJadwalSholat(
                                         location?.latitude.toString(),
