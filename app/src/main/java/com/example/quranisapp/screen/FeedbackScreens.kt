@@ -32,6 +32,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.example.quranisapp.data.kotpref.SettingPreferences
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,13 +43,24 @@ fun FeedbackScreens(openDrawer: () -> Unit) {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(text = "Feedback") },
+                title = {
+                    Text(
+                        text = when (SettingPreferences.isSelectedLanguage) {
+                            SettingPreferences.INDONESIA -> {
+                                "Umpan Balik"
+                            }
+
+                            else -> {
+                                "Feedback"
+                            }
+                        },
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = { openDrawer() }) {
                         Icon(imageVector = Icons.Default.Menu, contentDescription = null)
                     }
                 },
-
             )
         }
     ) {
@@ -60,12 +72,30 @@ fun FeedbackScreens(openDrawer: () -> Unit) {
                 .fillMaxSize()
         ) {
             Text(
-                text = "Do you have any criticism, suggestions, or feedback? Send us a message",
+                text = when (SettingPreferences.isSelectedLanguage) {
+                    SettingPreferences.INDONESIA -> {
+                        "Apakah Anda memiliki kritik, saran, atau umpan balik? Kirimkan pesan kepada kami"
+                    }
+
+                    else -> {
+                        "Do you have any criticism, suggestions, or feedback? Send us a message"
+                    }
+                },
                 modifier = Modifier.padding(16.dp),
                 textAlign = TextAlign.Center
             )
             Button(onClick = { openDialog = true }) {
-                Text(text = "Send Message")
+                Text(
+                    text = when (SettingPreferences.isSelectedLanguage) {
+                        SettingPreferences.INDONESIA -> {
+                            "Kirim Pesan"
+                        }
+
+                        else -> {
+                            "Send Message"
+                        }
+                    },
+                )
             }
         }
         if (openDialog) {
@@ -80,7 +110,19 @@ fun FeedbackScreens(openDrawer: () -> Unit) {
                 Scaffold(
                     topBar = {
                         TopAppBar(
-                            title = { Text(text = "Send E-mail To Developer") },
+                            title = {
+                                Text(
+                                    text = when (SettingPreferences.isSelectedLanguage) {
+                                        SettingPreferences.INDONESIA -> {
+                                            "Kirim E-mail kepada Developer"
+                                        }
+
+                                        else -> {
+                                            "Send E-mail To Developer"
+                                        }
+                                    },
+                                )
+                            },
                             navigationIcon = {
                                 IconButton(onClick = { openDialog = false }) {
                                     Icon(
@@ -99,7 +141,10 @@ fun FeedbackScreens(openDrawer: () -> Unit) {
                             .background(MaterialTheme.colorScheme.surface),
                         contentAlignment = Alignment.Center
                     ) {
-                        Column(verticalArrangement = Arrangement.SpaceAround, modifier = Modifier.fillMaxSize()) {
+                        Column(
+                            verticalArrangement = Arrangement.SpaceAround,
+                            modifier = Modifier.fillMaxSize()
+                        ) {
                             OutlinedTextField(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -107,16 +152,53 @@ fun FeedbackScreens(openDrawer: () -> Unit) {
                                     .padding(horizontal = 16.dp),
                                 value = "sayyid.olim12@gmail.com",
                                 onValueChange = {},
-                                label = { Text("To") })
+                                label = {
+                                    Text(
+                                        when (SettingPreferences.isSelectedLanguage) {
+                                            SettingPreferences.INDONESIA -> {
+                                                "Kepada"
+                                            }
+
+                                            else -> {
+                                                "To"
+                                            }
+                                        },
+                                    )
+                                },
+                            )
                             OutlinedTextField(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(horizontal = 16.dp)
-                                ,
+                                    .padding(horizontal = 16.dp),
                                 value = textSubject,
                                 onValueChange = { textSubject = it },
-                                placeholder = { Text(text = "example : bugs, criticism, suggestions") },
-                                label = { Text("Subject") })
+                                placeholder = {
+                                    Text(
+                                        text = when (SettingPreferences.isSelectedLanguage) {
+                                            SettingPreferences.INDONESIA -> {
+                                                "contoh: bug, kritik, saran"
+                                            }
+
+                                            else -> {
+                                                "example : bugs, criticism, suggestions"
+                                            }
+                                        },
+                                    )
+                                },
+                                label = {
+                                    Text(
+                                        when (SettingPreferences.isSelectedLanguage) {
+                                            SettingPreferences.INDONESIA -> {
+                                                "Perihal"
+                                            }
+
+                                            else -> {
+                                                "Subject"
+                                            }
+                                        },
+                                    )
+                                }
+                            )
                             OutlinedTextField(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -124,7 +206,19 @@ fun FeedbackScreens(openDrawer: () -> Unit) {
                                     .padding(horizontal = 16.dp),
                                 value = textMessage,
                                 onValueChange = { textMessage = it },
-                                label = { Text("Message") },
+                                label = {
+                                    Text(
+                                        when (SettingPreferences.isSelectedLanguage) {
+                                            SettingPreferences.INDONESIA -> {
+                                                "Pesan"
+                                            }
+
+                                            else -> {
+                                                "Message"
+                                            }
+                                        },
+                                    )
+                                },
                             )
                             Button(
                                 onClick = { /* Handle send email */ },
@@ -132,7 +226,17 @@ fun FeedbackScreens(openDrawer: () -> Unit) {
                                     .align(Alignment.End)
                                     .padding(end = 16.dp, bottom = 16.dp, top = 8.dp)
                             ) {
-                                Text("Send")
+                                Text(
+                                    when (SettingPreferences.isSelectedLanguage) {
+                                        SettingPreferences.INDONESIA -> {
+                                            "Kirim"
+                                        }
+
+                                        else -> {
+                                            "Send"
+                                        }
+                                    },
+                                )
                             }
                         }
                     }
