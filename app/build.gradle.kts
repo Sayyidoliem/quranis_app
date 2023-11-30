@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.quranisapp"
+    namespace = "com.olimhouse.qooraanapp"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.quranisapp"
+        applicationId = "com.olimhouse.qooraanapp"
         minSdk = 28
         targetSdk = 33
         versionCode = 1
@@ -122,4 +122,17 @@ dependencies {
 
     //buat animasi
     implementation ("com.airbnb.android:lottie-compose:6.1.0")
+
+    // For Glance support
+    implementation("androidx.glance:glance:1.0.0")
+
+    // For AppWidgets support
+    implementation("androidx.glance:glance-appwidget:1.0.0")
+
+    // For interop APIs with Material 3
+    implementation ("androidx.glance:glance-material3:1.0.0")
+
+
+    // For Wear-Tiles support
+    implementation("androidx.glance:glance-wear-tiles:1.0.0-alpha05")
 }
