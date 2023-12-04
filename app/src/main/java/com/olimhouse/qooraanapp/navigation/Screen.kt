@@ -1,9 +1,8 @@
 package com.olimhouse.qooraanapp.navigation
 
 sealed class Screen(val route : String){
-    object OnBoarding : Screen("onboarding1")
+    object OnBoarding : Screen("onboarding")
     object Read : Screen("index")
-    object Time: Screen("time")
     object Detail: Screen("read?&surahNumber={surahNumber}&juzNumber={juzNumber}&pageNumber={pageNumber}&index={index}") {
         fun createRoute(
             surahNumber : Int?,
@@ -14,7 +13,6 @@ sealed class Screen(val route : String){
             return "read?&surahNumber=${surahNumber}&juzNumber=${juzNumber}&pageNumber=${pageNumber}&index=${index}"
         }
     }
-    object Bookmark: Screen("bookmark")
     object Setting: Screen("setting")
     object Discover: Screen("discover")
     object Info: Screen("info")
