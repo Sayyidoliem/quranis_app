@@ -7,6 +7,7 @@ import android.os.Parcelable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -34,22 +35,26 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.PermissionsRequired
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
+import com.google.android.gms.location.LocationServices
+import com.olimhouse.qooraanapp.R
 import com.olimhouse.qooraanapp.data.kotpref.SettingPreferences
 import com.olimhouse.qooraanapp.service.ApiInterface
 import com.olimhouse.qooraanapp.service.api.Time
 import com.olimhouse.qooraanapp.service.location.LocationService
 import com.olimhouse.qooraanapp.service.location.LocationServiceCondition
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.PermissionsRequired
-import com.google.accompanist.permissions.rememberMultiplePermissionsState
-import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
@@ -140,12 +145,11 @@ fun PrayerScreens(
     ) {
         LazyColumn(
             modifier = Modifier
-                .padding(16.dp)
                 .padding(it)
-                .fillMaxWidth()
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
             item {
-                Spacer(modifier = Modifier.padding(top = 16.dp))
                 PermissionsRequired(
                     multiplePermissionsState = locationPermission,
                     permissionsNotGrantedContent = {
@@ -264,10 +268,10 @@ fun PrayerScreens(
                 when {
                     prayerTime.isNotEmpty() -> {
                         Spacer(modifier = Modifier.size(20.dp))
-                        Text(text = "Date : ${prayerTime[0]?.gregorian}", fontSize = 20.sp)
-                        Spacer(modifier = Modifier.size(20.dp))
+                        Text(text = "Date : ${prayerTime[0]?.gregorian}",modifier = Modifier.padding(start = 16.dp), fontSize = 20.sp)
+                        Spacer(modifier = Modifier.size(16.dp))
                         Text(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth().padding(start = 16.dp),
                             text = "$cityLocation, \n$provinceLocation",
                             color = MaterialTheme.colorScheme.onPrimaryContainer,
                             fontSize = 20.sp,
@@ -278,17 +282,37 @@ fun PrayerScreens(
 
                     else -> {
                         Spacer(modifier = Modifier.size(20.dp))
-                        LinearProgressIndicator(Modifier.fillMaxWidth())
+                        LinearProgressIndicator(Modifier.fillMaxWidth().padding(16.dp))
                     }
                 }
                 timeSholatButton.forEach { item ->
                     ItemCardPrayer(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 8.dp)
+                            .padding(vertical = 8.dp, horizontal = 16.dp)
                             .clip(shape = RoundedCornerShape(10.dp)),
                         titleSholat = item.judulSholat,
                         timesholat = item.waktuSholat
+                    )
+                }
+            }
+            item {
+                Row(
+                    verticalAlignment = Alignment.Bottom, modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = 56.dp)
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .align(Alignment.Bottom)
+                            .fillMaxWidth(),
+                        text = "QOORAAN",
+                        style = MaterialTheme.typography.bodyLarge,
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontFamily = FontFamily(Font(R.font.brunoace))
                     )
                 }
             }
