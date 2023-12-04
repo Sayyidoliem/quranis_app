@@ -99,7 +99,7 @@ class MainActivity : ComponentActivity() {
                                             style = MaterialTheme.typography.headlineLarge,
                                             fontWeight = FontWeight.ExtraBold,
                                             color = MaterialTheme.colorScheme.primary,
-                                            fontFamily = FontFamily(Font(R.font.merriweathersans_regular))
+                                            fontFamily = FontFamily(Font(R.font.brunoace))
                                         )
                                         navigationdrawerList.map { item ->
                                             NavigationDrawerItem(
@@ -291,7 +291,7 @@ class MainActivity : ComponentActivity() {
                                         },
                                     )
                                 }
-                                composable("setting") {
+                                composable(Screen.Setting.route) {
                                     SettingScreens(openDrawer = { scope.launch { navDrawerState.open() } })
                                 }
                                 composable(Screen.Qiblat.route) {
