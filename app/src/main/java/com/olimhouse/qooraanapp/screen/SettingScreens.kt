@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material3.AlertDialog
@@ -38,10 +39,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.olimhouse.qooraanapp.R
 import com.olimhouse.qooraanapp.data.kotpref.Qories
 import com.olimhouse.qooraanapp.data.kotpref.SettingPreferences
 import com.olimhouse.qooraanapp.utils.GlobalState
@@ -163,7 +166,7 @@ fun SettingScreens(openDrawer: () -> Unit) {
                     modifier = Modifier.padding(16.dp)
                 )
                  */
-                ListItem(
+                ListItem(//dark mode
                     headlineContent = {
                         Text(
                             text = when (SettingPreferences.isSelectedLanguage) {
@@ -212,45 +215,57 @@ fun SettingScreens(openDrawer: () -> Unit) {
                     }
                 )
                 Divider()
-                ListItem(
+                ListItem(//fokus read
                     headlineContent = {
                         Text(
-                            text = when (SettingPreferences.isSelectedLanguage) {
+                            text =
+                            when (SettingPreferences.isSelectedLanguage) {
                                 SettingPreferences.INDONESIA -> {
-                                    "Ganti Qori"
+                                    "Mode Fokus Baca"
                                 }
 
                                 else -> {
-                                    "Change Qori"
+                                    "Focus Read Mode"
                                 }
                             },
-
-                            )
+                        )
                     },
                     supportingContent = {
                         Text(
                             text = when (SettingPreferences.isSelectedLanguage) {
                                 SettingPreferences.INDONESIA -> {
-                                    "Ganti Suara qori untuk pembacaan Al-Quran"
+                                    "Sembunyikan terjemahan dan widget agar fokus dalam membaca ayat"
                                 }
 
                                 else -> {
-                                    "Changing the voice of the reciter for the Qoran"
+                                    "Hide translations and widgets to focus on reading the verse"
                                 }
                             },
                         )
                     },
                     trailingContent = {
-                        IconButton(onClick = { showQoriDialog = true }) {
-                            Icon(
-                                imageVector = Icons.Default.OpenInNew,
-                                contentDescription = ""
-                            )
-                        }
+                        Switch(
+                            checked = GlobalState.isVisibleTranslate,
+                            onCheckedChange = { isChecked ->
+                                GlobalState.isVisibleTranslate = isChecked
+                                SettingPreferences.isVisibleTranslate = isChecked
+                            },
+                            thumbContent = if (GlobalState.isVisibleTranslate) {
+                                {
+                                    Icon(
+                                        imageVector = Icons.Filled.Check,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(SwitchDefaults.IconSize),
+                                    )
+                                }
+                            } else {
+                                null
+                            }
+                        )
                     }
                 )
                 Divider()
-                ListItem(
+                ListItem(//translate
                     headlineContent = {
                         Text(
                             text =
@@ -287,6 +302,44 @@ fun SettingScreens(openDrawer: () -> Unit) {
                         }
                     }
                 )
+                Divider()
+                ListItem(//change qori
+                    headlineContent = {
+                        Text(
+                            text = when (SettingPreferences.isSelectedLanguage) {
+                                SettingPreferences.INDONESIA -> {
+                                    "Ganti Qori"
+                                }
+
+                                else -> {
+                                    "Change Qori"
+                                }
+                            },
+
+                            )
+                    },
+                    supportingContent = {
+                        Text(
+                            text = when (SettingPreferences.isSelectedLanguage) {
+                                SettingPreferences.INDONESIA -> {
+                                    "Ganti Suara qori untuk pembacaan Al-Quran"
+                                }
+
+                                else -> {
+                                    "Changing the voice of the reciter for the Qoran"
+                                }
+                            },
+                        )
+                    },
+                    trailingContent = {
+                        IconButton(onClick = { showQoriDialog = true }) {
+                            Icon(
+                                imageVector = Icons.Default.OpenInNew,
+                                contentDescription = ""
+                            )
+                        }
+                    }
+                )
             }
             item {
                 Row(
@@ -300,10 +353,11 @@ fun SettingScreens(openDrawer: () -> Unit) {
                             .align(Alignment.Bottom)
                             .fillMaxWidth(),
                         text = "QOORAAN",
+                        style = MaterialTheme.typography.bodyLarge,
                         textAlign = TextAlign.Center,
-                        fontSize = 16.sp,
                         fontWeight = FontWeight.ExtraBold,
-                        color = MaterialTheme.colorScheme.primary
+                        color = MaterialTheme.colorScheme.primary,
+                        fontFamily = FontFamily(Font(R.font.brunoace))
                     )
                 }
             }
@@ -355,6 +409,7 @@ fun SettingScreens(openDrawer: () -> Unit) {
             AlertDialog(
                 onDismissRequest = { showTranslateDialog = false },
                 title = { Text(text = "Select Language") },
+                icon = { Icon(imageVector = Icons.Default.Language, contentDescription = null)},
                 text = {
                     Column {
                         radioOptions.forEachIndexed { index, option ->
