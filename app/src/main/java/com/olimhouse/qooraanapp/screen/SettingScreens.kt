@@ -2,6 +2,7 @@ package com.olimhouse.qooraanapp.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,9 +14,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.OpenInNew
+import androidx.compose.material.icons.filled.TextFields
+import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Divider
@@ -26,6 +31,7 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -39,11 +45,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.olimhouse.qooraanapp.R
 import com.olimhouse.qooraanapp.data.kotpref.Qories
 import com.olimhouse.qooraanapp.data.kotpref.SettingPreferences
@@ -65,6 +73,7 @@ fun SettingScreens(openDrawer: () -> Unit) {
                             SettingPreferences.INDONESIA -> {
                                 "Pengaturan"
                             }
+
                             else -> {
                                 "Settings"
                             }
@@ -180,6 +189,9 @@ fun SettingScreens(openDrawer: () -> Unit) {
                             },
                         )
                     },
+                    leadingContent = {
+                        Icon(imageVector = Icons.Default.DarkMode, contentDescription = "")
+                    },
                     supportingContent = {
                         Text(
                             text = when (SettingPreferences.isSelectedLanguage) {
@@ -229,6 +241,9 @@ fun SettingScreens(openDrawer: () -> Unit) {
                                 }
                             },
                         )
+                    },
+                    leadingContent = {
+                        Icon(imageVector = Icons.Default.MenuBook, contentDescription = "")
                     },
                     supportingContent = {
                         Text(
@@ -280,6 +295,9 @@ fun SettingScreens(openDrawer: () -> Unit) {
                             },
                         )
                     },
+                    leadingContent = {
+                        Icon(imageVector = Icons.Default.Language, contentDescription = "")
+                    },
                     supportingContent = {
                         Text(
                             text = when (SettingPreferences.isSelectedLanguage) {
@@ -318,6 +336,9 @@ fun SettingScreens(openDrawer: () -> Unit) {
 
                             )
                     },
+                    leadingContent = {
+                        Icon(imageVector = Icons.Default.VolumeUp, contentDescription = "")
+                    },
                     supportingContent = {
                         Text(
                             text = when (SettingPreferences.isSelectedLanguage) {
@@ -340,6 +361,49 @@ fun SettingScreens(openDrawer: () -> Unit) {
                         }
                     }
                 )
+                Divider()
+                ListItem( //change quran textsize
+                    headlineContent = {
+                        Text(
+                            text =
+                            when (SettingPreferences.isSelectedLanguage) {
+                                SettingPreferences.INDONESIA -> {
+                                    "Ukuran Teks Baca Quran"
+                                }
+
+                                else -> {
+                                    "Quran Read Text Size"
+                                }
+                            },
+                        )
+                    },
+                    leadingContent = {
+                        Icon(imageVector = Icons.Default.TextFields, contentDescription = "")
+                    },
+                    supportingContent = {
+                        Slider(
+                            modifier = Modifier.fillMaxWidth(),
+                            value = GlobalState.ayahTextSize,
+                            onValueChange = { newValue ->
+                                GlobalState.ayahTextSize = newValue
+                                SettingPreferences.ayahTextSize = newValue
+                            },
+                            valueRange = 24F..40F
+                        )
+                        Box(
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            Text(
+                                modifier = Modifier.align(Alignment.Center),
+                                text = "بِسْمِ اللهِ الرَّحْمَنِ الرَّحِيْمِ",
+                                style = TextStyle(
+                                    fontSize = GlobalState.ayahTextSize.sp
+                                )
+                            )
+                        }
+                    },
+                )
+                Divider()
             }
             item {
                 Row(
@@ -409,7 +473,7 @@ fun SettingScreens(openDrawer: () -> Unit) {
             AlertDialog(
                 onDismissRequest = { showTranslateDialog = false },
                 title = { Text(text = "Select Language") },
-                icon = { Icon(imageVector = Icons.Default.Language, contentDescription = null)},
+                icon = { Icon(imageVector = Icons.Default.Language, contentDescription = null) },
                 text = {
                     Column {
                         radioOptions.forEachIndexed { index, option ->

@@ -238,9 +238,6 @@ fun AyatScreens(
     val playerClient = remember {
         PlayerClient.newInstance(context, MyPlayerServices::class.java)
     }
-    var changeLanguageState by remember {
-        mutableStateOf(SettingPreferences.isSelectedLanguage)
-    }
 
     val playQori = mutableListOf<MusicItem>()
 
@@ -892,16 +889,17 @@ fun AyatScreens(
                             }
                         }
                         Column(modifier = Modifier.padding(16.dp)) {
+                            val lineHeight = GlobalState.ayahTextSize.sp * 1.3
                             Text(
                                 modifier = Modifier.fillMaxWidth(),
                                 text = TajweedHelper.getTajweed(
                                     context = context,
                                     s = Regex("\\d+\$").replace(qoran.ayatText!!, ""),
                                 ).toAnnotatedString(MaterialTheme.colorScheme.primary),
-                                fontSize = 20.sp,
+                                fontSize = GlobalState.ayahTextSize.sp,
                                 textAlign = TextAlign.End,
                                 letterSpacing = 3.sp,
-                                lineHeight = 36.sp
+                                lineHeight = lineHeight
                             )
                             Spacer(modifier = Modifier.padding(5.dp))
                             SpannableText(

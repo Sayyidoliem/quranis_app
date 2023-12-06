@@ -1,6 +1,7 @@
 package com.olimhouse.qooraanapp.utils
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -16,4 +17,6 @@ object GlobalState {
     var isDateFormated by mutableLongStateOf(SettingPreferences.dateFormat)
 
     var isOnBoarding by mutableStateOf(SettingPreferences.isOnBoarding)
+
+    var ayahTextSize by mutableFloatStateOf(SettingPreferences.ayahTextSize)
 }
