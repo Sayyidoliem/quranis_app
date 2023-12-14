@@ -3,11 +3,11 @@ package com.olimhouse.qooraanapp.screen
 import android.os.Build.VERSION
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
@@ -23,6 +23,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -62,50 +64,55 @@ fun AppInfoScreens(openDrawer: () -> Unit) {
             )
         }
     ) {
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(it),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Image(
-                modifier= Modifier.size(300.dp).clip(shape = RoundedCornerShape(50.dp)),
-                painter = painterResource(id = R.drawable.ic_launcher_foreground),
-                contentDescription = null
-            )
-            Spacer(modifier = Modifier.padding(8.dp))
-            Text(
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(bottom = 8.dp),
-                text = "QOORAAN",
-                fontSize = 30.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Text(
-                text = when (SettingPreferences.isSelectedLanguage) {
-                    SettingPreferences.INDONESIA -> {
-                        "Versi $versionApp"
-                    }
+            item{
+                Image(
+                    modifier= Modifier
+                        .size(300.dp)
+                        .clip(shape = RoundedCornerShape(50.dp)),
+                    painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                    contentDescription = null
+                )
+                Spacer(modifier = Modifier.padding(8.dp))
+                Text(
+                    modifier = Modifier
+                        .padding(bottom = 8.dp),
+                    text = "QOORAAN",
+                    fontSize = 30.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontFamily = FontFamily(Font(R.font.brunoace))
+                )
+                Text(
+                    text = when (SettingPreferences.isSelectedLanguage) {
+                        SettingPreferences.INDONESIA -> {
+                            "Versi $versionApp"
+                        }
 
-                    else -> {
-                        "Version $versionApp"
+                        else -> {
+                            "Version $versionApp"
+                        }
                     }
-                }
-            )
-            Text(
-                text = when (SettingPreferences.isSelectedLanguage) {
-                    SettingPreferences.INDONESIA -> {
-                        "Versi SDK : $sdkVersion "
-                    }
+                )
+                Text(
+                    text = when (SettingPreferences.isSelectedLanguage) {
+                        SettingPreferences.INDONESIA -> {
+                            "Versi SDK : $sdkVersion "
+                        }
 
-                    else -> {
-                        "SDK Version : $sdkVersion"
+                        else -> {
+                            "SDK Version : $sdkVersion"
+                        }
                     }
-                }
-            )
+                )
+                Spacer(modifier = Modifier.padding(16.dp))
+            }
         }
     }
 }

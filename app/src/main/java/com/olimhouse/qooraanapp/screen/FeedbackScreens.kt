@@ -144,7 +144,7 @@ fun FeedbackScreens(openDrawer: () -> Unit) {
                             .background(MaterialTheme.colorScheme.surface),
                         contentAlignment = Alignment.Center
                     ) {
-                        var emailDeveloper  = "sayyid.olim12@gmail.com"
+                        var emailDeveloper = "sayyid.olim12@gmail.com"
                         Column(
                             verticalArrangement = Arrangement.SpaceAround,
                             modifier = Modifier.fillMaxSize()
@@ -155,7 +155,7 @@ fun FeedbackScreens(openDrawer: () -> Unit) {
 
                                     .padding(horizontal = 16.dp),
                                 value = emailDeveloper,
-                                onValueChange = { emailDeveloper = it},
+                                onValueChange = { emailDeveloper = it },
                                 label = {
                                     Text(
                                         when (SettingPreferences.isSelectedLanguage) {
@@ -232,16 +232,21 @@ fun FeedbackScreens(openDrawer: () -> Unit) {
                                     // on below line we are passing email address,
                                     // email subject and email body
                                     val emailAddress = emailDeveloper
-                                    i.putExtra(Intent.EXTRA_EMAIL,emailAddress)
-                                    i.putExtra(Intent.EXTRA_SUBJECT,textSubject)
-                                    i.putExtra(Intent.EXTRA_TEXT,textMessage)
+                                    i.putExtra(Intent.EXTRA_EMAIL, emailAddress)
+                                    i.putExtra(Intent.EXTRA_SUBJECT, textSubject)
+                                    i.putExtra(Intent.EXTRA_TEXT, textMessage)
 
                                     // on below line we are
                                     // setting type of intent
                                     i.type = "message/rfc822"
 
                                     // on the below line we are starting our activity to open email application.
-                                    context.startActivity(Intent.createChooser(i,"Choose an Email client : "))
+                                    context.startActivity(
+                                        Intent.createChooser(
+                                            i,
+                                            "Choose an Email client : "
+                                        )
+                                    )
                                 },
                                 Modifier
                                     .align(Alignment.End)
@@ -262,7 +267,6 @@ fun FeedbackScreens(openDrawer: () -> Unit) {
                         }
                     }
                 }
-
             }
         }
     }
